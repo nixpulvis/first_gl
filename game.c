@@ -1,7 +1,14 @@
+#if defined(__APPLE__)
+#include <OpenGL/gl.h>
+#include <OpenGL/glu.h>
+#include <GLUT/glut.h>
+#else
 #include <GL/gl.h>
 #include <GL/glu.h>
 #include <GL/glut.h>
+#endif
 
+#include <stdlib.h>
 #include <stdio.h>
 #include <math.h>
 
@@ -81,8 +88,8 @@ void display(void) {
   glLoadIdentity();
 
   gluLookAt(player1.position.x, player1.position.y, player1.position.z,
-    player1.position.x+cos(player1.eye.yaw), 
-    player1.position.y-tan(player1.eye.pitch), 
+    player1.position.x+cos(player1.eye.yaw),
+    player1.position.y-tan(player1.eye.pitch),
     player1.position.z+sin(player1.eye.yaw),
     0.0f, 1.0f, 0.0f);
 
