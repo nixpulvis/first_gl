@@ -1,3 +1,5 @@
+#undef __STRICT_ANSI__
+
 #if defined(__APPLE__)
 #include <OpenGL/gl.h>
 #include <OpenGL/glu.h>
@@ -11,8 +13,6 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <math.h>
-
-#define PI 3.14159265
 
 typedef struct {
   float x;
@@ -168,12 +168,12 @@ void keyUp(unsigned char key, int x, int y) {
       player1.position.z -= player1.speed*sin(player1.eye.yaw);
       break;
     case 'a':
-      player1.position.x -= player1.speed*cos(player1.eye.yaw + PI/2);
-      player1.position.z -= player1.speed*sin(player1.eye.yaw + PI/2);
+      player1.position.x -= player1.speed*cos(player1.eye.yaw + M_PI/2);
+      player1.position.z -= player1.speed*sin(player1.eye.yaw + M_PI/2);
       break;
     case 'd':
-      player1.position.x += player1.speed*cos(player1.eye.yaw + PI/2);
-      player1.position.z += player1.speed*sin(player1.eye.yaw + PI/2);
+      player1.position.x += player1.speed*cos(player1.eye.yaw + M_PI/2);
+      player1.position.z += player1.speed*sin(player1.eye.yaw + M_PI/2);
       break;
     case 'q':
       player1.position.y += 1;

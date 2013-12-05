@@ -8,6 +8,8 @@ else
 	LDFLAGS = -framework OpenGL -framework GLUT
 endif
 
+LDFLAGS += -lm
+
 all:
 	$(CC) $(CFLAGS) -o $(NAME) $(NAME).c $(LDFLAGS)
 
