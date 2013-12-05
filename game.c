@@ -2,9 +2,9 @@
 #include <GL/gl.h>
 #include <GL/glu.h>
 #include <GL/glut.h>
- 
+
 #include <stdio.h>
- 
+
 typedef struct {
   float x;
   float y;
@@ -36,35 +36,35 @@ void display(void) {
 
   glBegin(GL_TRIANGLES);
 
-  glColor3f(1.0f, 0.0f, 0.0f);     
+  glColor3f(1.0f, 0.0f, 0.0f);
   glVertex3f(0.0f, 1.0f, 0.0f);
-  glColor3f(0.0f, 1.0f, 0.0f);     
+  glColor3f(0.0f, 1.0f, 0.0f);
   glVertex3f(-1.0f, -1.0f, 1.0f);
-  glColor3f(0.0f, 0.0f, 1.0f);     
+  glColor3f(0.0f, 0.0f, 1.0f);
   glVertex3f(1.0f, -1.0f, 1.0f);
 
-  
-  glColor3f(1.0f, 0.0f, 0.0f);     
+
+  glColor3f(1.0f, 0.0f, 0.0f);
   glVertex3f(0.0f, 1.0f, 0.0f);
-  glColor3f(0.0f, 0.0f, 1.0f);     
+  glColor3f(0.0f, 0.0f, 1.0f);
   glVertex3f(1.0f, -1.0f, 1.0f);
-  glColor3f(0.0f, 1.0f, 0.0f);     
+  glColor3f(0.0f, 1.0f, 0.0f);
   glVertex3f(1.0f, -1.0f, -1.0f);
 
-  
-  glColor3f(1.0f, 0.0f, 0.0f);     
+
+  glColor3f(1.0f, 0.0f, 0.0f);
   glVertex3f(0.0f, 1.0f, 0.0f);
-  glColor3f(0.0f, 1.0f, 0.0f);     
+  glColor3f(0.0f, 1.0f, 0.0f);
   glVertex3f(1.0f, -1.0f, -1.0f);
-  glColor3f(0.0f, 0.0f, 1.0f);     
+  glColor3f(0.0f, 0.0f, 1.0f);
   glVertex3f(-1.0f, -1.0f, -1.0f);
 
-  
-  glColor3f(1.0f,0.0f,0.0f);       
+
+  glColor3f(1.0f,0.0f,0.0f);
   glVertex3f(0.0f, 1.0f, 0.0f);
-  glColor3f(0.0f,0.0f,1.0f);       
+  glColor3f(0.0f,0.0f,1.0f);
   glVertex3f(-1.0f,-1.0f,-1.0f);
-  glColor3f(0.0f,1.0f,0.0f);       
+  glColor3f(0.0f,1.0f,0.0f);
   glVertex3f(-1.0f,-1.0f, 1.0f);
 
   glEnd();
@@ -83,7 +83,7 @@ void init(void) {
 
   glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST);
 }
- 
+
 void reshape(int width, int height) {
   if (height == 0) height = 1;
 
@@ -96,7 +96,7 @@ void reshape(int width, int height) {
 
   gluPerspective(45.0f, aspect, 0.1f, 100.0f);
 }
- 
+
 void keyboard(unsigned char key, int x, int y) {
   switch (key) {
     case 'w':
@@ -119,10 +119,10 @@ void keyboard(unsigned char key, int x, int y) {
       break;
   }
 }
- 
+
 int main(int argc, char *argv[]) {
   glutInit(&argc, argv);
- 
+
   glutInitDisplayMode(GLUT_DOUBLE);
   glutCreateWindow("My Game");
   glutReshapeWindow(900, 600);
@@ -134,6 +134,6 @@ int main(int argc, char *argv[]) {
   init();
 
   glutMainLoop();
- 
+
   return 0;
 }
