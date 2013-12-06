@@ -15,70 +15,35 @@
 #include <math.h>
 
 typedef struct {
+  float pitch;
+  float yaw;
+  float roll;
+} EulerAngle;
+
+typedef struct {
+  float x;
+  float y;
+} Posn2;
+
+typedef struct {
   float x;
   float y;
   float z;
-} posn;
+} Posn3;
 
 typedef struct {
-  float pitch;
-  float yaw;
-} look;
+  Posn3 position;
+  EulerAngle look;
+  float moveSpeed;
+  float lookSensitivity;
+
+} Player;
 
 typedef struct {
-  posn position;
-  look eye;
-  float speed;
-  float lookSpeed;
-} player;
-
-player player1 = {
-  {0.0f, 1.0f, 0.0f},
-  {0.0f, 0.0f},
-  0.1f,
-  0.03f
-};
-
-int keyStates[256];
-
-void drawBox(float x, float y, float z, float w, float h, float d) {
-  glBegin(GL_QUADS);
-
-  glColor3f(0.7f, 0.7f, 0.8f);
-  glVertex3f(x, y, z);
-  glVertex3f(x+w, y, z);
-  glVertex3f(x+w, y+h, z);
-  glVertex3f(x, y+h, z);
-
-  glVertex3f(x, y, z+d);
-  glVertex3f(x+w, y, z+d);
-  glVertex3f(x+w, y+h, z+d);
-  glVertex3f(x, y+h, z+d);
-
-  glColor3f(0.5f, 0.5f, 0.6f);
-  glVertex3f(x, y, z);
-  glVertex3f(x+w, y, z);
-  glVertex3f(x+w, y, z+d);
-  glVertex3f(x, y, z+d);
-
-  glVertex3f(x, y+h, z);
-  glVertex3f(x+w, y+h, z);
-  glVertex3f(x+w, y+h, z+d);
-  glVertex3f(x, y+h, z+d);
-
-  glColor3f(0.6f, 0.6f, 0.7f);
-  glVertex3f(x, y, z);
-  glVertex3f(x, y+h, z);
-  glVertex3f(x, y+h, z+d);
-  glVertex3f(x, y, z+d);
-
-  glVertex3f(x+w, y, z);
-  glVertex3f(x+w, y+h, z);
-  glVertex3f(x+w, y+h, z+d);
-  glVertex3f(x+w, y, z+d);
-
-  glEnd();
-}
+  Posn2 mousePos;
+  Player player;
+  unsigned char keyStates[256];
+} gameState;
 
 void display(void) {
 
@@ -87,45 +52,11 @@ void display(void) {
 
   glLoadIdentity();
 
-  gluLookAt(player1.position.x, player1.position.y, player1.position.z,
+  /*gluLookAt(player1.position.x, player1.position.y, player1.position.z,
     player1.position.x+cos(player1.eye.yaw),
     player1.position.y-tan(player1.eye.pitch),
     player1.position.z+sin(player1.eye.yaw),
-    0.0f, 1.0f, 0.0f);
-
-  glBegin(GL_LINES);
-
-  glColor3f(1.0f, 0.0f, 0.0f);
-  glVertex3f(0.0f, 0.0f, 0.0f);
-  glVertex3f(1.0f, 0.0f, 0.0f);
-
-  glColor3f(0.0f, 1.0f, 0.0f);
-  glVertex3f(0.0f, 0.0f, 0.0f);
-  glVertex3f(0.0f, 1.0f, 0.0f);
-
-  glColor3f(0.0f, 0.0f, 1.0f);
-  glVertex3f(0.0f, 0.0f, 0.0f);
-  glVertex3f(0.0f, 0.0f, 1.0f);
-
-  glEnd();
-
-  glBegin(GL_QUADS);
-
-  for(int i = -25; i < 25; i ++) {
-    for(int j = -25; j < 25; j ++) {
-      if((i+j)%2) glColor3f(0.7f, 0.6f, 0.6f);
-      else glColor3f(0.4f, 0.4f, 0.5f);
-
-      glVertex3f((float)i, 0.0f, (float)j);
-      glVertex3f((float)i+1, 0.0f, (float)j);
-      glVertex3f((float)i+1, 0.0f, (float)j+1);
-      glVertex3f((float)i, 0.0f, (float)j+1);
-    }
-  }
-
-  glEnd();
-
-  drawBox(0.0f, 0.0f, 0.0f, 1.0f, 0.5f, 0.75f);
+    0.0f, 1.0f, 0.0f);*/
 
   glutSwapBuffers();
 
@@ -155,10 +86,41 @@ void reshape(int width, int height) {
   gluPerspective(45.0f, aspect, 0.1f, 100.0f);
 }
 
-void keyUp(unsigned char key, int x, int y) {
+void keyPressed(unsigned char key, int x, int y) {
   keyStates[key] = 1;
+}
 
-  switch (key) {
+void keyUp(unsigned char key, int x, int y) {
+  keyStates[key] = 0;
+}
+
+void mouseMove(int x, int y) {
+
+}
+
+int main(int argc, char *argv[]) {
+  glutInit(&argc, argv);
+
+  glutInitDisplayMode(GLUT_DOUBLE);
+  glutCreateWindow("My Game");
+  glutReshapeWindow(800, 600);
+  glutPositionWindow(150, 150);
+  glutDisplayFunc(display);
+  glutReshapeFunc(reshape);
+  glutKeyboardFunc(keyPressed);
+  glutKeyboardUpFunc(keyUp);
+  glutPassiveMotionFunc(mouseMove);
+  glutSetCursor(GLUT_CURSOR_NONE);
+
+  init();
+
+  glutMainLoop();
+
+  return 0;
+}
+
+
+/*switch (key) {
     case 'w':
       player1.position.x += player1.speed*cos(player1.eye.yaw);
       player1.position.z += player1.speed*sin(player1.eye.yaw);
@@ -182,41 +144,5 @@ void keyUp(unsigned char key, int x, int y) {
       player1.position.y -= 1;
       break;
     case 'x':
-      exit(1);
-  }
-}
-
-
-int warped = 1;
-void mouse(int x, int y) {
-
-  if(!warped) {
-    player1.eye.yaw += (float)(x-400)/1000;
-    player1.eye.pitch += (float)(y-300)/1000;
-
-    warped = 1;
-
-    glutWarpPointer(400, 300);
-  }
-  else warped = 0;
-}
-
-int main(int argc, char *argv[]) {
-  glutInit(&argc, argv);
-
-  glutInitDisplayMode(GLUT_DOUBLE);
-  glutCreateWindow("My Game");
-  glutReshapeWindow(800, 600);
-  glutPositionWindow(150, 150);
-  glutDisplayFunc(display);
-  glutReshapeFunc(reshape);
-  glutKeyboardFunc(keyUp);
-  glutWarpPointer(400, 300);
-  glutPassiveMotionFunc(mouse);
-
-  init();
-
-  glutMainLoop();
-
-  return 0;
-}
+      exit(0);
+  }*/
