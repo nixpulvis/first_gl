@@ -1,83 +1,48 @@
 #undef __STRICT_ANSI__
 
-#if defined(__APPLE__)
-#include <OpenGL/gl.h>
-#include <OpenGL/glu.h>
-#include <GLUT/glut.h>
-#else
-#include <GL/gl.h>
-#include <GL/glu.h>
-#include <GL/glut.h>
-#endif
+#include "game.h"
 
-#include <stdlib.h>
-#include <stdio.h>
-#include <math.h>
-
-typedef struct {
-  float x;
-  float y;
-  float z;
-} posn;
-
-typedef struct {
-  float pitch;
-  float yaw;
-} look;
-
-typedef struct {
-  posn position;
-  look eye;
-  float speed;
-  float lookSpeed;
-} player;
-
-player player1 = {
-  {0.0f, 1.0f, 0.0f},
-  {0.0f, 0.0f},
-  0.1f,
-  0.03f
+GameState g_state = {
+  .mousePos = {
+    .x = -1.0f,
+    .y = -1.0f,
+  },
+  .player = {
+    .position = {
+      .x = 0.0f,
+      .y = 1.0f,
+      .z = 0.0f
+    },
+    .look = {
+      .pitch = 0.0f,
+      .yaw = 0.0f,
+      .roll = 0.0f
+    },
+    .moveSpeed = 0.08f,
+    .lookSensitivity = 1.2f
+  }
 };
 
-int keyStates[256];
+int main(int argc, char *argv[]) {
+  glutInit(&argc, argv);
 
-void drawBox(float x, float y, float z, float w, float h, float d) {
-  glBegin(GL_QUADS);
+  glutInitDisplayMode(GLUT_DOUBLE);
+  glutCreateWindow("My Game");
+  glutReshapeWindow(800, 600);
+  glutPositionWindow(150, 150);
+  glutDisplayFunc(display);
+  glutReshapeFunc(reshape);
+  glutTimerFunc(GAME_LOOP_UPDATE_RATE, gameLoop, 0);
+  glutKeyboardFunc(keyPressed);
+  glutKeyboardUpFunc(keyUp);
+  glutPassiveMotionFunc(mouseMove);
+  glutSetCursor(GLUT_CURSOR_NONE);
 
-  glColor3f(0.7f, 0.7f, 0.8f);
-  glVertex3f(x, y, z);
-  glVertex3f(x+w, y, z);
-  glVertex3f(x+w, y+h, z);
-  glVertex3f(x, y+h, z);
+  init();
 
-  glVertex3f(x, y, z+d);
-  glVertex3f(x+w, y, z+d);
-  glVertex3f(x+w, y+h, z+d);
-  glVertex3f(x, y+h, z+d);
+  glutMainLoop();
 
-  glColor3f(0.5f, 0.5f, 0.6f);
-  glVertex3f(x, y, z);
-  glVertex3f(x+w, y, z);
-  glVertex3f(x+w, y, z+d);
-  glVertex3f(x, y, z+d);
-
-  glVertex3f(x, y+h, z);
-  glVertex3f(x+w, y+h, z);
-  glVertex3f(x+w, y+h, z+d);
-  glVertex3f(x, y+h, z+d);
-
-  glColor3f(0.6f, 0.6f, 0.7f);
-  glVertex3f(x, y, z);
-  glVertex3f(x, y+h, z);
-  glVertex3f(x, y+h, z+d);
-  glVertex3f(x, y, z+d);
-
-  glVertex3f(x+w, y, z);
-  glVertex3f(x+w, y+h, z);
-  glVertex3f(x+w, y+h, z+d);
-  glVertex3f(x+w, y, z+d);
-
-  glEnd();
+  return 0;
 }
 
 void display(void) {
@@ -87,30 +52,16 @@ void display(void) {
 
   glLoadIdentity();
 
-  gluLookAt(player1.position.x, player1.position.y, player1.position.z,
-    player1.position.x+cos(player1.eye.yaw),
-    player1.position.y-tan(player1.eye.pitch),
-    player1.position.z+sin(player1.eye.yaw),
+  Player player = g_state.player;
+
+  gluLookAt(player.position.x, player.position.y, player.position.z,
+    player.position.x+cos(player.look.yaw),
+    player.position.y-tan(player.look.pitch),
+    player.position.z+sin(player.look.yaw),
     0.0f, 1.0f, 0.0f);
 
-  glBegin(GL_LINES);
-
-  glColor3f(1.0f, 0.0f, 0.0f);
-  glVertex3f(0.0f, 0.0f, 0.0f);
-  glVertex3f(1.0f, 0.0f, 0.0f);
-
-  glColor3f(0.0f, 1.0f, 0.0f);
-  glVertex3f(0.0f, 0.0f, 0.0f);
-  glVertex3f(0.0f, 1.0f, 0.0f);
-
-  glColor3f(0.0f, 0.0f, 1.0f);
-  glVertex3f(0.0f, 0.0f, 0.0f);
-  glVertex3f(0.0f, 0.0f, 1.0f);
-
-  glEnd();
-
   glBegin(GL_QUADS);
-
+  
   for(int i = -25; i < 25; i ++) {
     for(int j = -25; j < 25; j ++) {
       if((i+j)%2) glColor3f(0.7f, 0.6f, 0.6f);
@@ -123,9 +74,67 @@ void display(void) {
     }
   }
 
-  glEnd();
+  for(int i = -25; i < 25; i ++) {
+    for(int j = -25; j < 25; j ++) {
+      if((i+j)%2) glColor3f(0.7f, 0.6f, 0.6f);
+      else glColor3f(0.4f, 0.4f, 0.5f);
 
-  drawBox(0.0f, 0.0f, 0.0f, 1.0f, 0.5f, 0.75f);
+      glVertex3f((float)i, 10.0f, (float)j);
+      glVertex3f((float)i+1, 10.0f, (float)j);
+      glVertex3f((float)i+1, 10.0f, (float)j+1);
+      glVertex3f((float)i, 10.0f, (float)j+1);
+    }
+  }
+
+  for(int i = -25; i < 25; i ++) {
+    for(int j = 0; j < 10; j ++) {
+      if((i+j)%2) glColor3f(0.8f, 0.6f, 0.6f);
+      else glColor3f(0.4f, 0.4f, 0.5f);
+
+      glVertex3f((float)i, (float)j, 25.0f);
+      glVertex3f((float)i+1, (float)j, 25.0f);
+      glVertex3f((float)i+1, (float)j+1, 25.0f);
+      glVertex3f((float)i, (float)j+1, 25.0f);
+    }
+  }
+
+  for(int i = -25; i < 25; i ++) {
+    for(int j = 0; j < 10; j ++) {
+      if((i+j)%2) glColor3f(0.8f, 0.6f, 0.6f);
+      else glColor3f(0.4f, 0.4f, 0.5f);
+
+      glVertex3f((float)i, (float)j, -25.0f);
+      glVertex3f((float)i+1, (float)j, -25.0f);
+      glVertex3f((float)i+1, (float)j+1, -25.0f);
+      glVertex3f((float)i, (float)j+1, -25.0f);
+    }
+  }
+
+  for(int i = -25; i < 25; i ++) {
+    for(int j = 0; j < 10; j ++) {
+      if((i+j)%2) glColor3f(0.6f, 0.6f, 0.6f);
+      else glColor3f(0.4f, 0.4f, 0.5f);
+
+      glVertex3f(25.0f, (float)j, (float)i);
+      glVertex3f(25.0f, (float)j+1, (float)i);
+      glVertex3f(25.0f, (float)j+1, (float)i+1);
+      glVertex3f(25.0f, (float)j, (float)i+1);
+    }
+  }
+
+  for(int i = -25; i < 25; i ++) {
+    for(int j = 0; j < 10; j ++) {
+      if((i+j)%2) glColor3f(0.6f, 0.6f, 0.6f);
+      else glColor3f(0.4f, 0.4f, 0.5f);
+
+      glVertex3f(-25.0f, (float)j, (float)i);
+      glVertex3f(-25.0f, (float)j+1, (float)i);
+      glVertex3f(-25.0f, (float)j+1, (float)i+1);
+      glVertex3f(-25.0f, (float)j, (float)i+1);
+    }
+  }
+
+  glEnd();
 
   glutSwapBuffers();
 
@@ -155,68 +164,63 @@ void reshape(int width, int height) {
   gluPerspective(45.0f, aspect, 0.1f, 100.0f);
 }
 
+void keyPressed(unsigned char key, int x, int y) {
+  g_state.keyStates[key] = 1;
+
+  if (key == 27) exit(0);
+}
+
 void keyUp(unsigned char key, int x, int y) {
-  keyStates[key] = 1;
-
-  switch (key) {
-    case 'w':
-      player1.position.x += player1.speed*cos(player1.eye.yaw);
-      player1.position.z += player1.speed*sin(player1.eye.yaw);
-      break;
-    case 's':
-      player1.position.x -= player1.speed*cos(player1.eye.yaw);
-      player1.position.z -= player1.speed*sin(player1.eye.yaw);
-      break;
-    case 'a':
-      player1.position.x -= player1.speed*cos(player1.eye.yaw + M_PI/2);
-      player1.position.z -= player1.speed*sin(player1.eye.yaw + M_PI/2);
-      break;
-    case 'd':
-      player1.position.x += player1.speed*cos(player1.eye.yaw + M_PI/2);
-      player1.position.z += player1.speed*sin(player1.eye.yaw + M_PI/2);
-      break;
-    case 'q':
-      player1.position.y += 1;
-      break;
-    case 'e':
-      player1.position.y -= 1;
-      break;
-    case 'x':
-      exit(1);
-  }
+  g_state.keyStates[key] = 0;
 }
 
+void mouseMove(int x, int y) {
+  int deltaX = x - g_state.mousePos.x;
+  int deltaY = y - g_state.mousePos.y;
 
-int warped = 1;
-void mouse(int x, int y) {
+  g_state.mousePos.x = x;
+  g_state.mousePos.y = y;
 
-  if(!warped) {
-    player1.eye.yaw += (float)(x-400)/1000;
-    player1.eye.pitch += (float)(y-300)/1000;
+  if (deltaX == 0 && deltaY == 0) return;
 
-    warped = 1;
+  int windowX = glutGet(GLUT_WINDOW_X);
+  int windowY = glutGet(GLUT_WINDOW_Y);
+  int windowW = glutGet(GLUT_WINDOW_WIDTH);
+  int windowH = glutGet(GLUT_WINDOW_HEIGHT);
 
-    glutWarpPointer(400, 300);
+  if (x <= windowX + 200 || y <= windowY + 200 || 
+      x >= windowX + windowW - 200 || y >= windowY + windowH - 200) {
+    g_state.mousePos.x = windowX + windowW/2;
+    g_state.mousePos.y = windowY + windowH/2;
+    glutWarpPointer(g_state.mousePos.x, g_state.mousePos.y);
   }
-  else warped = 0;
+
+  g_state.player.look.yaw += (float)deltaX*g_state.player.lookSensitivity/500.0f;
+  g_state.player.look.pitch += (float)deltaY*g_state.player.lookSensitivity/500.0f;
+
+  if (g_state.player.look.pitch > 0.5f) g_state.player.look.pitch = 0.5f;
+  else if (g_state.player.look.pitch < -0.5f) g_state.player.look.pitch = -0.5f;
 }
 
-int main(int argc, char *argv[]) {
-  glutInit(&argc, argv);
+void gameLoop(int value) {
+  if (g_state.keyStates['w'] && !g_state.keyStates['s']) {
+    g_state.player.position.x += g_state.player.moveSpeed*cos(g_state.player.look.yaw);
+    g_state.player.position.z += g_state.player.moveSpeed*sin(g_state.player.look.yaw);
+  }
+  else if (g_state.keyStates['s'] && !g_state.keyStates['w']) {
+    g_state.player.position.x -= g_state.player.moveSpeed*cos(g_state.player.look.yaw);
+    g_state.player.position.z -= g_state.player.moveSpeed*sin(g_state.player.look.yaw);
+  }
 
-  glutInitDisplayMode(GLUT_DOUBLE);
-  glutCreateWindow("My Game");
-  glutReshapeWindow(800, 600);
-  glutPositionWindow(150, 150);
-  glutDisplayFunc(display);
-  glutReshapeFunc(reshape);
-  glutKeyboardFunc(keyUp);
-  glutWarpPointer(400, 300);
-  glutPassiveMotionFunc(mouse);
+  if (g_state.keyStates['a'] && !g_state.keyStates['d']) {
+    g_state.player.position.x -= g_state.player.moveSpeed*cos(g_state.player.look.yaw + M_PI_2);
+    g_state.player.position.z -= g_state.player.moveSpeed*sin(g_state.player.look.yaw + M_PI_2);
+  }
+  else if (g_state.keyStates['d'] && !g_state.keyStates['a']) {
+    g_state.player.position.x += g_state.player.moveSpeed*cos(g_state.player.look.yaw + M_PI_2);
+    g_state.player.position.z += g_state.player.moveSpeed*sin(g_state.player.look.yaw + M_PI_2);
+  }
 
-  init();
-
-  glutMainLoop();
-
-  return 0;
+  glutPostRedisplay();
+  glutTimerFunc(GAME_LOOP_UPDATE_RATE, gameLoop, 0);
 }
