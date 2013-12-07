@@ -18,8 +18,8 @@ GameState g_state = {
       .yaw = 0.0f,
       .roll = 0.0f
     },
-    .moveSpeed = 0.1f,
-    .lookSensitivity = 0.1
+    .moveSpeed = 0.08f,
+    .lookSensitivity = 1.2f
   }
 };
 
@@ -74,6 +74,66 @@ void display(void) {
     }
   }
 
+  for(int i = -25; i < 25; i ++) {
+    for(int j = -25; j < 25; j ++) {
+      if((i+j)%2) glColor3f(0.7f, 0.6f, 0.6f);
+      else glColor3f(0.4f, 0.4f, 0.5f);
+
+      glVertex3f((float)i, 10.0f, (float)j);
+      glVertex3f((float)i+1, 10.0f, (float)j);
+      glVertex3f((float)i+1, 10.0f, (float)j+1);
+      glVertex3f((float)i, 10.0f, (float)j+1);
+    }
+  }
+
+  for(int i = -25; i < 25; i ++) {
+    for(int j = 0; j < 10; j ++) {
+      if((i+j)%2) glColor3f(0.8f, 0.6f, 0.6f);
+      else glColor3f(0.4f, 0.4f, 0.5f);
+
+      glVertex3f((float)i, (float)j, 25.0f);
+      glVertex3f((float)i+1, (float)j, 25.0f);
+      glVertex3f((float)i+1, (float)j+1, 25.0f);
+      glVertex3f((float)i, (float)j+1, 25.0f);
+    }
+  }
+
+  for(int i = -25; i < 25; i ++) {
+    for(int j = 0; j < 10; j ++) {
+      if((i+j)%2) glColor3f(0.8f, 0.6f, 0.6f);
+      else glColor3f(0.4f, 0.4f, 0.5f);
+
+      glVertex3f((float)i, (float)j, -25.0f);
+      glVertex3f((float)i+1, (float)j, -25.0f);
+      glVertex3f((float)i+1, (float)j+1, -25.0f);
+      glVertex3f((float)i, (float)j+1, -25.0f);
+    }
+  }
+
+  for(int i = -25; i < 25; i ++) {
+    for(int j = 0; j < 10; j ++) {
+      if((i+j)%2) glColor3f(0.6f, 0.6f, 0.6f);
+      else glColor3f(0.4f, 0.4f, 0.5f);
+
+      glVertex3f(25.0f, (float)j, (float)i);
+      glVertex3f(25.0f, (float)j+1, (float)i);
+      glVertex3f(25.0f, (float)j+1, (float)i+1);
+      glVertex3f(25.0f, (float)j, (float)i+1);
+    }
+  }
+
+  for(int i = -25; i < 25; i ++) {
+    for(int j = 0; j < 10; j ++) {
+      if((i+j)%2) glColor3f(0.6f, 0.6f, 0.6f);
+      else glColor3f(0.4f, 0.4f, 0.5f);
+
+      glVertex3f(-25.0f, (float)j, (float)i);
+      glVertex3f(-25.0f, (float)j+1, (float)i);
+      glVertex3f(-25.0f, (float)j+1, (float)i+1);
+      glVertex3f(-25.0f, (float)j, (float)i+1);
+    }
+  }
+
   glEnd();
 
   glutSwapBuffers();
@@ -115,7 +175,31 @@ void keyUp(unsigned char key, int x, int y) {
 }
 
 void mouseMove(int x, int y) {
+  int deltaX = x - g_state.mousePos.x;
+  int deltaY = y - g_state.mousePos.y;
 
+  g_state.mousePos.x = x;
+  g_state.mousePos.y = y;
+
+  if (deltaX == 0 && deltaY == 0) return;
+
+  int windowX = glutGet(GLUT_WINDOW_X);
+  int windowY = glutGet(GLUT_WINDOW_Y);
+  int windowW = glutGet(GLUT_WINDOW_WIDTH);
+  int windowH = glutGet(GLUT_WINDOW_HEIGHT);
+
+  if (x <= windowX + 200 || y <= windowY + 200 || 
+      x >= windowX + windowW - 200 || y >= windowY + windowH - 200) {
+    g_state.mousePos.x = windowX + windowW/2;
+    g_state.mousePos.y = windowY + windowH/2;
+    glutWarpPointer(g_state.mousePos.x, g_state.mousePos.y);
+  }
+
+  g_state.player.look.yaw += (float)deltaX*g_state.player.lookSensitivity/500.0f;
+  g_state.player.look.pitch += (float)deltaY*g_state.player.lookSensitivity/500.0f;
+
+  if (g_state.player.look.pitch > 0.5f) g_state.player.look.pitch = 0.5f;
+  else if (g_state.player.look.pitch < -0.5f) g_state.player.look.pitch = -0.5f;
 }
 
 void gameLoop(int value) {
