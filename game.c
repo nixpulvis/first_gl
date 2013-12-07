@@ -10,7 +10,7 @@ GameState g_state = {
   .player = {
     .position = {
       .x = 0.0f,
-      .y = 0.0f,
+      .y = 1.0f,
       .z = 0.0f
     },
     .look = {
@@ -18,7 +18,7 @@ GameState g_state = {
       .yaw = 0.0f,
       .roll = 0.0f
     },
-    .moveSpeed = 5.0f,
+    .moveSpeed = 0.1f,
     .lookSensitivity = 0.1
   }
 };
@@ -54,11 +54,27 @@ void display(void) {
 
   Player player = g_state.player;
 
-  /*gluLookAt(player.position.x, player.position.y, player.position.z,
+  gluLookAt(player.position.x, player.position.y, player.position.z,
     player.position.x+cos(player.look.yaw),
     player.position.y-tan(player.look.pitch),
     player.position.z+sin(player.look.yaw),
-    0.0f, 1.0f, 0.0f);*/
+    0.0f, 1.0f, 0.0f);
+
+  glBegin(GL_QUADS);
+  
+  for(int i = -25; i < 25; i ++) {
+    for(int j = -25; j < 25; j ++) {
+      if((i+j)%2) glColor3f(0.7f, 0.6f, 0.6f);
+      else glColor3f(0.4f, 0.4f, 0.5f);
+
+      glVertex3f((float)i, 0.0f, (float)j);
+      glVertex3f((float)i+1, 0.0f, (float)j);
+      glVertex3f((float)i+1, 0.0f, (float)j+1);
+      glVertex3f((float)i, 0.0f, (float)j+1);
+    }
+  }
+
+  glEnd();
 
   glutSwapBuffers();
 
@@ -103,25 +119,24 @@ void mouseMove(int x, int y) {
 }
 
 void gameLoop(int value) {
-  Player player = g_state.player;
-
   if (g_state.keyStates['w'] && !g_state.keyStates['s']) {
-    player.position.x += player.moveSpeed*cos(player.look.yaw);
-    player.position.z += player.moveSpeed*sin(player.look.yaw);
+    g_state.player.position.x += g_state.player.moveSpeed*cos(g_state.player.look.yaw);
+    g_state.player.position.z += g_state.player.moveSpeed*sin(g_state.player.look.yaw);
   }
   else if (g_state.keyStates['s'] && !g_state.keyStates['w']) {
-    player.position.x -= player.moveSpeed*cos(player.look.yaw);
-    player.position.z -= player.moveSpeed*sin(player.look.yaw);
+    g_state.player.position.x -= g_state.player.moveSpeed*cos(g_state.player.look.yaw);
+    g_state.player.position.z -= g_state.player.moveSpeed*sin(g_state.player.look.yaw);
   }
 
   if (g_state.keyStates['a'] && !g_state.keyStates['d']) {
-    player.position.x -= player.moveSpeed*cos(player.look.yaw + M_PI_2);
-    player.position.z -= player.moveSpeed*sin(player.look.yaw + M_PI_2);
+    g_state.player.position.x -= g_state.player.moveSpeed*cos(g_state.player.look.yaw + M_PI_2);
+    g_state.player.position.z -= g_state.player.moveSpeed*sin(g_state.player.look.yaw + M_PI_2);
   }
   else if (g_state.keyStates['d'] && !g_state.keyStates['a']) {
-    player.position.x += player.moveSpeed*cos(player.look.yaw + M_PI_2);
-    player.position.z += player.moveSpeed*sin(player.look.yaw + M_PI_2);
+    g_state.player.position.x += g_state.player.moveSpeed*cos(g_state.player.look.yaw + M_PI_2);
+    g_state.player.position.z += g_state.player.moveSpeed*sin(g_state.player.look.yaw + M_PI_2);
   }
 
   glutPostRedisplay();
+  glutTimerFunc(GAME_LOOP_UPDATE_RATE, gameLoop, 0);
 }
