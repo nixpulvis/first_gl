@@ -1,6 +1,5 @@
 CC = gcc
 CFLAGS = -Wall -Wno-deprecated -pedantic -std=c99 -g -O
-NAME = game
 
 ifneq (,$(findstring /c/, $(PATH)))
 	LDFLAGS = -lopengl32 -lglut32 -lglu32
@@ -10,8 +9,21 @@ endif
 
 LDFLAGS += -lm
 
-all:
-	$(CC) $(CFLAGS) -o $(NAME) $(NAME).c $(LDFLAGS)
+# C source and object files.
+SRCS = $(wildcard *.c)
+OBJS = $(SRCS:.c=.o)
+
+NAME = game
+
+.PHONY: clean run
+
+all: $(NAME)
+
+$(NAME): $(OBJS)
+	$(CC) $(CFLAGS) -o $(NAME) $(OBJS) $(LDFLAGS)
+
+.c.o:
+	$(CC) $(CFLAGS) -c $< -o $@
 
 clean:
 	rm -rf $(NAME) *.dSYM

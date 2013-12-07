@@ -1,49 +1,49 @@
 #undef __STRICT_ANSI__
 
-#if defined(__APPLE__)
-#include <OpenGL/gl.h>
-#include <OpenGL/glu.h>
-#include <GLUT/glut.h>
-#else
-#include <GL/gl.h>
-#include <GL/glu.h>
-#include <GL/glut.h>
-#endif
+#include "game.h"
 
-#include <stdlib.h>
-#include <stdio.h>
-#include <math.h>
+GameState g_state = {
+  .mousePos = {
+    .x = -1.0f,
+    .y = -1.0f,
+  },
+  .player = {
+    .position = {
+      .x = 0.0f,
+      .y = 0.0f,
+      .z = 0.0f
+    },
+    .look = {
+      .pitch = 0.0f,
+      .yaw = 0.0f,
+      .roll = 0.0f
+    },
+    .moveSpeed = 5.0f,
+    .lookSensitivity = 0.1
+  }
+};
 
-typedef struct {
-  float pitch;
-  float yaw;
-  float roll;
-} EulerAngle;
+int main(int argc, char *argv[]) {
+  glutInit(&argc, argv);
 
-typedef struct {
-  float x;
-  float y;
-} Posn2;
+  glutInitDisplayMode(GLUT_DOUBLE);
+  glutCreateWindow("My Game");
+  glutReshapeWindow(800, 600);
+  glutPositionWindow(150, 150);
+  glutDisplayFunc(display);
+  glutReshapeFunc(reshape);
+  glutTimerFunc(GAME_LOOP_UPDATE_RATE, gameLoop, 0);
+  glutKeyboardFunc(keyPressed);
+  glutKeyboardUpFunc(keyUp);
+  glutPassiveMotionFunc(mouseMove);
+  glutSetCursor(GLUT_CURSOR_NONE);
 
-typedef struct {
-  float x;
-  float y;
-  float z;
-} Posn3;
+  init();
 
-typedef struct {
-  Posn3 position;
-  EulerAngle look;
-  float moveSpeed;
-  float lookSensitivity;
+  glutMainLoop();
 
-} Player;
-
-typedef struct {
-  Posn2 mousePos;
-  Player player;
-  unsigned char keyStates[256];
-} gameState;
+  return 0;
+}
 
 void display(void) {
 
@@ -52,10 +52,12 @@ void display(void) {
 
   glLoadIdentity();
 
-  /*gluLookAt(player1.position.x, player1.position.y, player1.position.z,
-    player1.position.x+cos(player1.eye.yaw),
-    player1.position.y-tan(player1.eye.pitch),
-    player1.position.z+sin(player1.eye.yaw),
+  Player player = g_state.player;
+
+  /*gluLookAt(player.position.x, player.position.y, player.position.z,
+    player.position.x+cos(player.look.yaw),
+    player.position.y-tan(player.look.pitch),
+    player.position.z+sin(player.look.yaw),
     0.0f, 1.0f, 0.0f);*/
 
   glutSwapBuffers();
@@ -87,62 +89,39 @@ void reshape(int width, int height) {
 }
 
 void keyPressed(unsigned char key, int x, int y) {
-  keyStates[key] = 1;
+  g_state.keyStates[key] = 1;
+
+  if (key == 27) exit(0);
 }
 
 void keyUp(unsigned char key, int x, int y) {
-  keyStates[key] = 0;
+  g_state.keyStates[key] = 0;
 }
 
 void mouseMove(int x, int y) {
 
 }
 
-int main(int argc, char *argv[]) {
-  glutInit(&argc, argv);
+void gameLoop(int value) {
+  Player player = g_state.player;
 
-  glutInitDisplayMode(GLUT_DOUBLE);
-  glutCreateWindow("My Game");
-  glutReshapeWindow(800, 600);
-  glutPositionWindow(150, 150);
-  glutDisplayFunc(display);
-  glutReshapeFunc(reshape);
-  glutKeyboardFunc(keyPressed);
-  glutKeyboardUpFunc(keyUp);
-  glutPassiveMotionFunc(mouseMove);
-  glutSetCursor(GLUT_CURSOR_NONE);
+  if (g_state.keyStates['w'] && !g_state.keyStates['s']) {
+    player.position.x += player.moveSpeed*cos(player.look.yaw);
+    player.position.z += player.moveSpeed*sin(player.look.yaw);
+  }
+  else if (g_state.keyStates['s'] && !g_state.keyStates['w']) {
+    player.position.x -= player.moveSpeed*cos(player.look.yaw);
+    player.position.z -= player.moveSpeed*sin(player.look.yaw);
+  }
 
-  init();
+  if (g_state.keyStates['a'] && !g_state.keyStates['d']) {
+    player.position.x -= player.moveSpeed*cos(player.look.yaw + M_PI_2);
+    player.position.z -= player.moveSpeed*sin(player.look.yaw + M_PI_2);
+  }
+  else if (g_state.keyStates['d'] && !g_state.keyStates['a']) {
+    player.position.x += player.moveSpeed*cos(player.look.yaw + M_PI_2);
+    player.position.z += player.moveSpeed*sin(player.look.yaw + M_PI_2);
+  }
 
-  glutMainLoop();
-
-  return 0;
+  glutPostRedisplay();
 }
-
-
-/*switch (key) {
-    case 'w':
-      player1.position.x += player1.speed*cos(player1.eye.yaw);
-      player1.position.z += player1.speed*sin(player1.eye.yaw);
-      break;
-    case 's':
-      player1.position.x -= player1.speed*cos(player1.eye.yaw);
-      player1.position.z -= player1.speed*sin(player1.eye.yaw);
-      break;
-    case 'a':
-      player1.position.x -= player1.speed*cos(player1.eye.yaw + M_PI/2);
-      player1.position.z -= player1.speed*sin(player1.eye.yaw + M_PI/2);
-      break;
-    case 'd':
-      player1.position.x += player1.speed*cos(player1.eye.yaw + M_PI/2);
-      player1.position.z += player1.speed*sin(player1.eye.yaw + M_PI/2);
-      break;
-    case 'q':
-      player1.position.y += 1;
-      break;
-    case 'e':
-      player1.position.y -= 1;
-      break;
-    case 'x':
-      exit(0);
-  }*/
