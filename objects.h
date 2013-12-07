@@ -30,13 +30,13 @@
 
 // drawBox accepts 6 color vectors that respectively apply to:
 // Top -> Bottom -> Left -> Right -> Front -> Back
-void drawBox(Vector3D position, Vector3D dimensions, Vector3D *colors);
+void drawBox(Vector3Df position, Vector3Df dimensions, Vector3Df *colors);
 
 // drawPyramid accepts 5 color vectors that respectively apply to:
 // Bottom -> Left -> Right -> Front -> Back
-void drawPyramid(Vector3D position, Vector3D dimensions, Vector3D *colors);
+void drawPyramid(Vector3Df position, Vector3Df dimensions, Vector3Df *colors);
 
 // drawRectangle accepts 1 color and only a 2D dimension vector.
-void drawRectangle(Vector3D position, Vector2D dimensions, Vector3D *colors);
+void drawRectangle(Vector3Df position, Vector2Df dimensions, Vector3Df *colors);
 
 #endif

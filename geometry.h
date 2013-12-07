@@ -8,14 +8,25 @@ typedef struct {
 } EulerAngle;
 
 typedef struct {
+  int x;
+  int y;
+} Vector2Di;
+
+typedef struct {
   float x;
   float y;
-} Vector2D;
+} Vector2Df;
+
+typedef struct {
+  int x;
+  int y;
+  int z;
+} Vector3Di;
 
 typedef struct {
   float x;
   float y;
   float z;
-} Vector3D;
+} Vector3Df;
 
 #endif

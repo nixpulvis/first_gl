@@ -21,7 +21,7 @@
 #define GAME_LOOP_UPDATE_RATE 10
 
 typedef struct {
-  Vector3D position;
+  Vector3Df position;
   EulerAngle look;
   float moveSpeed;
   float lookSensitivity;
@@ -29,7 +29,7 @@ typedef struct {
 } Player;
 
 typedef struct {
-  Vector2D mousePos;
+  Vector2Di mousePos;
   Player player;
   unsigned char keyStates[256];
 } GameState;
