@@ -120,18 +120,6 @@ void display(void) {
   }
 
   for(int i = -25; i < 25; i ++) {
-    for(int j = -25; j < 25; j ++) {
-      if((i+j)%2) glColor3f(0.7f, 0.6f, 0.6f);
-      else glColor3f(0.4f, 0.4f, 0.5f);
-
-      glVertex3f((float)i, 10.0f, (float)j);
-      glVertex3f((float)i+1, 10.0f, (float)j);
-      glVertex3f((float)i+1, 10.0f, (float)j+1);
-      glVertex3f((float)i, 10.0f, (float)j+1);
-    }
-  }
-
-  for(int i = -25; i < 25; i ++) {
     for(int j = 0; j < 10; j ++) {
       if((i+j)%2) glColor3f(0.8f, 0.6f, 0.6f);
       else glColor3f(0.4f, 0.4f, 0.5f);
@@ -231,8 +219,8 @@ void init(void) {
 
   glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST);
 
-  g_state.mazeHeight = 10;
-  g_state.mazeWidth = 10;
+  g_state.mazeHeight = 12;
+  g_state.mazeWidth = 12;
   g_state.maze = generateMaze(g_state.mazeHeight, g_state.mazeWidth);
 }
 
@@ -283,8 +271,8 @@ void mouseMove(int x, int y) {
   g_state.player.look.yaw += (float)deltaX*g_state.player.lookSensitivity/500.0f;
   g_state.player.look.pitch += (float)deltaY*g_state.player.lookSensitivity/500.0f;
 
-  if (g_state.player.look.pitch > 1.0f) g_state.player.look.pitch = 1.0f;
-  else if (g_state.player.look.pitch < -1.0f) g_state.player.look.pitch = 1.0f;
+  if (g_state.player.look.pitch > 1.5f) g_state.player.look.pitch = 1.5f;
+  else if (g_state.player.look.pitch < -1.5f) g_state.player.look.pitch = -1.5f;
 }
 
 void gameLoop(int value) {
