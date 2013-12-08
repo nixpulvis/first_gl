@@ -259,7 +259,6 @@ void display(void) {
   display2D();
 
   glutSwapBuffers();
-  glutPostRedisplay();
 }
 
 void init(void) {
