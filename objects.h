@@ -1,5 +1,5 @@
 #ifndef OBJECTS_H
-#define OBJECTS_H 
+#define OBJECTS_H
 
 #if defined(__APPLE__)
 #include <OpenGL/gl.h>
@@ -29,7 +29,7 @@
 // represent r, g, and b.
 
 // drawBox accepts 6 color vectors that respectively apply to:
-// Top -> Bottom -> Left -> Right -> Front -> Back
+// Bottom -> Top -> Left -> Right -> Front -> Back
 void drawBox(Vector3Df position, Vector3Df dimensions, Vector3Df *colors);
 
 // drawPyramid accepts 5 color vectors that respectively apply to:

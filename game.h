@@ -1,5 +1,5 @@
 #ifndef GAME_H
-#define GAME_H 
+#define GAME_H
 
 #if defined(__APPLE__)
 #include <OpenGL/gl.h>
@@ -34,6 +34,8 @@ typedef struct {
   Player player;
   unsigned char keyStates[256];
   Cell** maze;
+  int mazeHeight;
+  int mazeWidth;
 } GameState;
 
 void display(void);

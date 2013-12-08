@@ -26,7 +26,7 @@ GameState g_state = {
 int main(int argc, char *argv[]) {
   glutInit(&argc, argv);
 
-  glutInitDisplayMode(GLUT_DOUBLE);
+  glutInitDisplayMode(GLUT_DOUBLE | GLUT_DEPTH);
   glutCreateWindow("My Game");
   glutReshapeWindow(800, 600);
   glutPositionWindow(150, 150);
@@ -48,46 +48,46 @@ int main(int argc, char *argv[]) {
 void drawBox(Vector3Df position, Vector3Df dimensions, Vector3Df *colors) {
 
   // Bot
-  glColor3f(1.0f, 0.0f, 0.0f);
+  glColor3f(colors[0].x, colors[0].y, colors[0].z);
   glVertex3f(position.x, position.y, position.z);
   glVertex3f(position.x+dimensions.x, position.y, position.z);
   glVertex3f(position.x+dimensions.x, position.y, position.z+dimensions.z);
   glVertex3f(position.x, position.y, position.z+dimensions.z);
 
-   // Top
+  // Top
+  glColor3f(colors[1].x, colors[1].y, colors[1].z);
   glVertex3f(position.x, position.y+dimensions.y, position.z);
   glVertex3f(position.x+dimensions.x, position.y+dimensions.y, position.z);
   glVertex3f(position.x+dimensions.x, position.y+dimensions.y, position.z+dimensions.z);
   glVertex3f(position.x, position.y+dimensions.y, position.z+dimensions.z);
 
-
   // Left
-  glColor3f(0.0f, 1.0f, 0.0f);
+  glColor3f(colors[2].x, colors[2].y, colors[2].z);
   glVertex3f(position.x, position.y, position.z);
   glVertex3f(position.x+dimensions.x, position.y, position.z);
   glVertex3f(position.x+dimensions.x, position.y+dimensions.y, position.z);
   glVertex3f(position.x, position.y+dimensions.y, position.z);
 
   // Right
+  glColor3f(colors[3].x, colors[3].y, colors[3].z);
   glVertex3f(position.x, position.y, position.z+dimensions.z);
   glVertex3f(position.x+dimensions.x, position.y, position.z+dimensions.z);
   glVertex3f(position.x+dimensions.x, position.y+dimensions.y, position.z+dimensions.z);
   glVertex3f(position.x, position.y+dimensions.y, position.z+dimensions.z);
 
   // Front
-  glColor3f(0.0f, 0.0f, 1.0f);
+  glColor3f(colors[4].x, colors[4].y, colors[4].z);
   glVertex3f(position.x, position.y, position.z);
   glVertex3f(position.x, position.y+dimensions.y, position.z);
   glVertex3f(position.x, position.y+dimensions.y, position.z+dimensions.z);
   glVertex3f(position.x, position.y, position.z+dimensions.z);
 
   // Back
+  glColor3f(colors[5].x, colors[5].y, colors[5].z);
   glVertex3f(position.x+dimensions.x, position.y, position.z);
   glVertex3f(position.x+dimensions.x, position.y+dimensions.y, position.z);
   glVertex3f(position.x+dimensions.x, position.y+dimensions.y, position.z+dimensions.z);
   glVertex3f(position.x+dimensions.x, position.y, position.z+dimensions.z);
-
-
 }
 
 void display(void) {
@@ -106,7 +106,7 @@ void display(void) {
     0.0f, 1.0f, 0.0f);
 
   glBegin(GL_QUADS);
-  
+
   for(int i = -25; i < 25; i ++) {
     for(int j = -25; j < 25; j ++) {
       if((i+j)%2) glColor3f(0.7f, 0.6f, 0.6f);
@@ -179,7 +179,41 @@ void display(void) {
     }
   }
 
-  drawBox((Vector3Df){.x = 0, .y = 0, .z = 0}, (Vector3Df){.x = 1, .y = .5, .z = 1}, NULL);
+  Vector3Df colors[] = {
+    (Vector3Df){.x = 1.0f, .y = 0.0f, .z = 0.0f},
+    (Vector3Df){.x = 1.0f, .y = 1.0f, .z = 0.0f},
+    (Vector3Df){.x = 0.0f, .y = 1.0f, .z = 0.0f},
+    (Vector3Df){.x = 1.0f, .y = 0.0f, .z = 1.0f},
+    (Vector3Df){.x = 0.0f, .y = 0.0f, .z = 1.0f},
+    (Vector3Df){.x = 0.0f, .y = 1.0f, .z = 1.0f},
+  };
+
+  for(int i = 0; i < 2*g_state.mazeHeight+1; i++) {
+    for(int j = 0; j < 2*g_state.mazeWidth+1; j++) {
+      if(i == 0 || i == 2*g_state.mazeHeight ||
+         j == 0 || j == 2*g_state.mazeWidth ||
+         (i%2 == 0 && j%2 == 0)) {
+        drawBox(
+          (Vector3Df){.x = i, .y = 0, .z = j},
+          (Vector3Df){.x = 1, .y = 0.5, .z = 1},
+          colors);
+      }
+      if(i%2 == 1 && j%2 == 1) {
+        if(g_state.maze[i/2][j/2].right == 0) {
+          drawBox(
+            (Vector3Df){.x = i, .y = 0, .z = j+1},
+            (Vector3Df){.x = 1, .y = 0.5, .z = 1},
+            colors);
+        }
+        if(g_state.maze[i/2][j/2].bot == 0) {
+          drawBox(
+            (Vector3Df){.x = i+1, .y = 0, .z = j},
+            (Vector3Df){.x = 1, .y = 0.5, .z = 1},
+            colors);
+        }
+      }
+    }
+  }
 
   glEnd();
 
@@ -197,7 +231,9 @@ void init(void) {
 
   glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST);
 
-  g_state.maze = generateMaze(5, 5);
+  g_state.mazeHeight = 10;
+  g_state.mazeWidth = 10;
+  g_state.maze = generateMaze(g_state.mazeHeight, g_state.mazeWidth);
 }
 
 void reshape(int width, int height) {
@@ -237,7 +273,7 @@ void mouseMove(int x, int y) {
   int windowW = glutGet(GLUT_WINDOW_WIDTH);
   int windowH = glutGet(GLUT_WINDOW_HEIGHT);
 
-  if (x <= windowX + 200 || y <= windowY + 200 || 
+  if (x <= windowX + 200 || y <= windowY + 200 ||
       x >= windowX + windowW - 200 || y >= windowY + windowH - 200) {
     g_state.mousePos.x = windowX + windowW/2;
     g_state.mousePos.y = windowY + windowH/2;
@@ -247,8 +283,8 @@ void mouseMove(int x, int y) {
   g_state.player.look.yaw += (float)deltaX*g_state.player.lookSensitivity/500.0f;
   g_state.player.look.pitch += (float)deltaY*g_state.player.lookSensitivity/500.0f;
 
-  if (g_state.player.look.pitch > 0.5f) g_state.player.look.pitch = 0.5f;
-  else if (g_state.player.look.pitch < -0.5f) g_state.player.look.pitch = -0.5f;
+  if (g_state.player.look.pitch > 0.75f) g_state.player.look.pitch = 0.75f;
+  else if (g_state.player.look.pitch < -0.75f) g_state.player.look.pitch = -0.75f;
 }
 
 void gameLoop(int value) {
