@@ -36,7 +36,4 @@ void drawBox(Vector3Df position, Vector3Df dimensions, Vector3Df *colors);
 // Bottom -> Left -> Right -> Front -> Back
 void drawPyramid(Vector3Df position, Vector3Df dimensions, Vector3Df *colors);
 
-// drawRectangle accepts 1 color and only a 2D dimension vector.
-void drawRectangle(Vector3Df position, Vector2Df dimensions, Vector3Df *colors);
-
 #endif

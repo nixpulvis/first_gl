@@ -1,21 +1,30 @@
 #include "maze.h"
 
+// Takes a width and height and returns a maze of type Cell**
+// Uses Recursive backtracker algorithm
 Cell **generateMaze(int height, int width) {
+	// Allocate memory for maze 
 	Cell **maze = malloc(height * sizeof(Cell *));
 
 	for(int i = 0; i < height; i++) {
 		maze[i] = calloc(width, sizeof(Cell));
 	}
 
+	// Seed the random number genrator
 	srand(time(NULL));
+
+	// Randomly choose starting cell for algorithm
 	int i = rand()%height;
 	int j = rand()%width;
 
+	// Step into the maze algoritm at cell (i,j)
 	step(maze, height, width, i, j);
 
+	// Return the maze after algorithm completes
 	return maze;
 }
 
+// Prints Cell** information to console
 void printMaze(Cell** maze, int height, int width) {
 	for(int i = 0; i < height; i++) {
 		for(int j = 0; j < width; j++) {
@@ -31,6 +40,8 @@ void printMaze(Cell** maze, int height, int width) {
 	}
 }
 
+// Shuffles a given array
+// For example: (0, 1, 2, 3) -> (3, 1, 2, 0)
 void shuffle(int *array, size_t n)
 {
     if (n > 1) 
@@ -46,12 +57,19 @@ void shuffle(int *array, size_t n)
     }
 }
 
+// Recursive function for maze generation algorithm
 void step(Cell** maze, int height, int width, int i, int j) {
+	// Set this cell to visited
 	maze[i][j].visited = 1;
 
+	// Get possible directions and shuffle order randomly
 	int dir[] = {0, 1, 2, 3};
 	shuffle(dir, 4);
 
+	// Algorithm
+	// For more information, see:
+	// http://en.wikipedia.org/wiki/Maze_generation_algorithm
+	// http://en.wikipedia.org/wiki/Backtracking
 	for(int k = 0; k < 4; k++) {
 		if(dir[k] == 0) {
 			if(i == 0 || maze[i-1][j].visited) continue;

@@ -19,9 +19,11 @@
 #include "objects.h"
 #include "maze.h"
 
+// Constants
 #define GAME_LOOP_UPDATE_RATE 10
-#define DEFUALT_WALK_SPEED 0.03f
+#define DEFAULT_WALK_SPEED 0.02f
 
+// Player struct
 typedef struct {
   Vector3Df position;
   EulerAngle look;
@@ -30,6 +32,7 @@ typedef struct {
 
 } Player;
 
+// GameState struct
 typedef struct {
   Vector2Di mousePos;
   Player player;
@@ -39,6 +42,7 @@ typedef struct {
   int mazeWidth;
 } GameState;
 
+// Headers for functions
 void setup3D(void);
 void display3D(void);
 void setup2D(void);
@@ -50,6 +54,7 @@ void reshape(int width, int height);
 void keyPressed(unsigned char key, int x, int y);
 void keyUp(unsigned char key, int x, int y);
 void mouseMove(int x, int y);
+void handleKeys(void); 
 void gameLoop(int value);
 
 #endif

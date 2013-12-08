@@ -5,6 +5,7 @@
 #include <stdio.h>
 #include <time.h>
 
+// Cell struct
 typedef struct {
 	int top;
 	int right;
@@ -13,6 +14,7 @@ typedef struct {
 	int visited;
 } Cell;
 
+// Headers for functions
 void shuffle(int *array, size_t n);
 Cell **generateMaze(int height, int width);
 void step(Cell** maze, int height, int width, int i, int j);
