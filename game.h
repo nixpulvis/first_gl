@@ -17,6 +17,7 @@
 
 #include "geometry.h"
 #include "objects.h"
+#include "maze.h"
 
 #define GAME_LOOP_UPDATE_RATE 10
 
@@ -32,6 +33,7 @@ typedef struct {
   Vector2Di mousePos;
   Player player;
   unsigned char keyStates[256];
+  Cell** maze;
 } GameState;
 
 void display(void);

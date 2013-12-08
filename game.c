@@ -45,6 +45,51 @@ int main(int argc, char *argv[]) {
   return 0;
 }
 
+void drawBox(Vector3Df position, Vector3Df dimensions, Vector3Df *colors) {
+
+  // Bot
+  glColor3f(1.0f, 0.0f, 0.0f);
+  glVertex3f(position.x, position.y, position.z);
+  glVertex3f(position.x+dimensions.x, position.y, position.z);
+  glVertex3f(position.x+dimensions.x, position.y, position.z+dimensions.z);
+  glVertex3f(position.x, position.y, position.z+dimensions.z);
+
+   // Top
+  glVertex3f(position.x, position.y+dimensions.y, position.z);
+  glVertex3f(position.x+dimensions.x, position.y+dimensions.y, position.z);
+  glVertex3f(position.x+dimensions.x, position.y+dimensions.y, position.z+dimensions.z);
+  glVertex3f(position.x, position.y+dimensions.y, position.z+dimensions.z);
+
+
+  // Left
+  glColor3f(0.0f, 1.0f, 0.0f);
+  glVertex3f(position.x, position.y, position.z);
+  glVertex3f(position.x+dimensions.x, position.y, position.z);
+  glVertex3f(position.x+dimensions.x, position.y+dimensions.y, position.z);
+  glVertex3f(position.x, position.y+dimensions.y, position.z);
+
+  // Right
+  glVertex3f(position.x, position.y, position.z+dimensions.z);
+  glVertex3f(position.x+dimensions.x, position.y, position.z+dimensions.z);
+  glVertex3f(position.x+dimensions.x, position.y+dimensions.y, position.z+dimensions.z);
+  glVertex3f(position.x, position.y+dimensions.y, position.z+dimensions.z);
+
+  // Front
+  glColor3f(0.0f, 0.0f, 1.0f);
+  glVertex3f(position.x, position.y, position.z);
+  glVertex3f(position.x, position.y+dimensions.y, position.z);
+  glVertex3f(position.x, position.y+dimensions.y, position.z+dimensions.z);
+  glVertex3f(position.x, position.y, position.z+dimensions.z);
+
+  // Back
+  glVertex3f(position.x+dimensions.x, position.y, position.z);
+  glVertex3f(position.x+dimensions.x, position.y+dimensions.y, position.z);
+  glVertex3f(position.x+dimensions.x, position.y+dimensions.y, position.z+dimensions.z);
+  glVertex3f(position.x+dimensions.x, position.y, position.z+dimensions.z);
+
+
+}
+
 void display(void) {
 
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -134,6 +179,8 @@ void display(void) {
     }
   }
 
+  drawBox((Vector3Df){.x = 0, .y = 0, .z = 0}, (Vector3Df){.x = 1, .y = .5, .z = 1}, NULL);
+
   glEnd();
 
   glutSwapBuffers();
@@ -149,6 +196,8 @@ void init(void) {
   glDepthFunc(GL_LEQUAL);
 
   glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST);
+
+  g_state.maze = generateMaze(5, 5);
 }
 
 void reshape(int width, int height) {
