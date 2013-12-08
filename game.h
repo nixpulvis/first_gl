@@ -39,6 +39,11 @@ typedef struct {
   int mazeWidth;
 } GameState;
 
+void setup3D(void);
+void display3D(void);
+void setup2D(void);
+void display2D(void);
+
 void display(void);
 void init(void);
 void reshape(int width, int height);

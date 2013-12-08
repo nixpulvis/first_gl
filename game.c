@@ -89,20 +89,30 @@ void drawBox(Vector3Df position, Vector3Df dimensions, Vector3Df *colors) {
   glVertex3f(position.x+dimensions.x, position.y, position.z+dimensions.z);
 }
 
-void display(void) {
-
-  glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-  glMatrixMode(GL_MODELVIEW);
-
+void setup3D(void) {
+  glMatrixMode(GL_PROJECTION);
   glLoadIdentity();
 
-  Player player = g_state.player;
+  int width = glutGet(GLUT_WINDOW_WIDTH);
+  int height = glutGet(GLUT_WINDOW_HEIGHT);
+  float aspect = (float) width / (float) height;
+  gluPerspective(45.0f, aspect, 0.1f, 100.0f);
+  
 
-  gluLookAt(player.position.x, player.position.y, player.position.z,
-    player.position.x+cos(player.look.yaw),
-    player.position.y-tan(player.look.pitch),
-    player.position.z+sin(player.look.yaw),
-    0.0f, 1.0f, 0.0f);
+  glMatrixMode(GL_MODELVIEW);
+  glLoadIdentity();
+
+  glEnable(GL_DEPTH_TEST);
+
+  gluLookAt(g_state.player.position.x, g_state.player.position.y, g_state.player.position.z,
+    g_state.player.position.x+cos(g_state.player.look.yaw),
+    g_state.player.position.y-tan(g_state.player.look.pitch),
+    g_state.player.position.z+sin(g_state.player.look.yaw),
+    0.0f, 1.0f, 0.0f);  
+}
+
+void display3D(void) {
+  setup3D();
 
   glBegin(GL_QUADS);
 
@@ -203,9 +213,38 @@ void display(void) {
   }
 
   glEnd();
+}
+
+void setup2D(void) {
+  glMatrixMode(GL_PROJECTION);
+  glLoadIdentity();
+  glOrtho(0, 100, 100, 0, 0, 1);
+
+  glMatrixMode(GL_MODELVIEW);
+  glLoadIdentity();
+  glDisable(GL_DEPTH_TEST);
+}
+
+void display2D(void) {
+  setup2D();
+
+  glBegin(GL_QUADS);
+
+  glVertex2f(45, 45);
+  glVertex2f(45, 55);
+  glVertex2f(55, 55);
+  glVertex2f(55, 45);
+  
+  glEnd();
+}
+
+void display(void) {
+  glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+  display3D();
+  display2D();
 
   glutSwapBuffers();
-
   glutPostRedisplay();
 }
 
