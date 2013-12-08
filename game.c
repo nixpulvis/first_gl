@@ -192,20 +192,20 @@ void display3D(void) {
          (i%2 == 0 && j%2 == 0)) {
         drawBox(
           (Vector3Df){.x = i, .y = 0, .z = j},
-          (Vector3Df){.x = 1, .y = 0.5, .z = 1},
+          (Vector3Df){.x = 1, .y = 1.5, .z = 1},
           colors);
       }
       if(i%2 == 1 && j%2 == 1) {
         if(g_state.maze[i/2][j/2].right == 0) {
           drawBox(
             (Vector3Df){.x = i, .y = 0, .z = j+1},
-            (Vector3Df){.x = 1, .y = 0.5, .z = 1},
+            (Vector3Df){.x = 1, .y = 1.5, .z = 1},
             colors);
         }
         if(g_state.maze[i/2][j/2].bot == 0) {
           drawBox(
             (Vector3Df){.x = i+1, .y = 0, .z = j},
-            (Vector3Df){.x = 1, .y = 0.5, .z = 1},
+            (Vector3Df){.x = 1, .y = 1.5, .z = 1},
             colors);
         }
       }
@@ -228,13 +228,27 @@ void setup2D(void) {
 void display2D(void) {
   setup2D();
 
-  glBegin(GL_QUADS);
+  int width = glutGet(GLUT_WINDOW_WIDTH);
+  int height = glutGet(GLUT_WINDOW_HEIGHT);
+  float aspect = (float) width / (float) height;
 
-  glVertex2f(45, 45);
-  glVertex2f(45, 55);
-  glVertex2f(55, 55);
-  glVertex2f(55, 45);
-  
+  glColor3f(0.8f, 1.8f, 0.8f);
+
+  glBegin(GL_POLYGON);
+  for(int i = 0; i < 32; i++) {
+    glVertex2f(90.0f+(10*cos((float)i/16*M_PI))/aspect, 90.0f+10*sin((float)i/16*M_PI));
+  }
+  glEnd();
+
+  float angle = g_state.player.look.yaw - M_PI_2;
+
+  glColor3f(1.0f, 0.0f, 0.0f);
+
+  glBegin(GL_POLYGON);
+  glVertex2f(90.0f+(10*cos(angle))/aspect, 90.0f+10*sin(angle));
+  glVertex2f(90.0f+(2*cos(angle+M_PI_2))/aspect, 90.0f+2*sin(angle+M_PI_2));
+  glVertex2f(90.0f-(2*cos(angle))/aspect, 90.0f-2*sin(angle));
+  glVertex2f(90.0f+(2*cos(angle-M_PI_2))/aspect, 90.0f+2*sin(angle-M_PI_2));
   glEnd();
 }
 
