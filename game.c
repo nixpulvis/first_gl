@@ -9,9 +9,9 @@ GameState g_state = {
   },
   .player = {
     .position = {
-      .x = 0.0f,
+      .x = 1.5f,
       .y = 1.0f,
-      .z = 0.0f
+      .z = 1.5f
     },
     .look = {
       .pitch = 0.0f,
