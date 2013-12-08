@@ -20,6 +20,7 @@
 #include "maze.h"
 
 #define GAME_LOOP_UPDATE_RATE 10
+#define DEFUALT_WALK_SPEED 0.03f
 
 typedef struct {
   Vector3Df position;

@@ -18,7 +18,7 @@ GameState g_state = {
       .yaw = 0.0f,
       .roll = 0.0f
     },
-    .moveSpeed = 0.08f,
+    .moveSpeed = DEFUALT_WALK_SPEED,
     .lookSensitivity = 1.2f
   }
 };
@@ -298,6 +298,12 @@ void gameLoop(int value) {
   }
   else if (g_state.keyStates['e'] && !g_state.keyStates['q']) {
     g_state.player.position.y -= g_state.player.moveSpeed;
+  }
+
+  if (g_state.keyStates[' ']) {
+    g_state.player.moveSpeed = DEFUALT_WALK_SPEED * 2;
+  } else {
+    g_state.player.moveSpeed = DEFUALT_WALK_SPEED;
   }
 
   glutPostRedisplay();
