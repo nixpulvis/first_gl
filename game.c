@@ -28,8 +28,7 @@ int main(int argc, char **argv) {
 
   glutInitDisplayMode(GLUT_DOUBLE | GLUT_DEPTH);
   glutCreateWindow("My Game");
-  glutReshapeWindow(800, 600);
-  glutPositionWindow(150, 150);
+  glutFullScreen();
   glutDisplayFunc(display);
   glutReshapeFunc(reshape);
   glutTimerFunc(GAME_LOOP_UPDATE_RATE, gameLoop, 0);
