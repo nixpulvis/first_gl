@@ -23,7 +23,7 @@ GameState g_state = {
   }
 };
 
-int main(int argc, char *argv[]) {
+int main(int argc, char **argv) {
   glutInit(&argc, argv);
 
   glutInitDisplayMode(GLUT_DOUBLE | GLUT_DEPTH);
