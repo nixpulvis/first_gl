@@ -283,8 +283,8 @@ void mouseMove(int x, int y) {
   g_state.player.look.yaw += (float)deltaX*g_state.player.lookSensitivity/500.0f;
   g_state.player.look.pitch += (float)deltaY*g_state.player.lookSensitivity/500.0f;
 
-  if (g_state.player.look.pitch > 0.75f) g_state.player.look.pitch = 0.75f;
-  else if (g_state.player.look.pitch < -0.75f) g_state.player.look.pitch = -0.75f;
+  if (g_state.player.look.pitch > 1.0f) g_state.player.look.pitch = 1.0f;
+  else if (g_state.player.look.pitch < -1.0f) g_state.player.look.pitch = 1.0f;
 }
 
 void gameLoop(int value) {
