@@ -306,6 +306,13 @@ void gameLoop(int value) {
     g_state.player.position.z += g_state.player.moveSpeed*sin(g_state.player.look.yaw + M_PI_2);
   }
 
+  if (g_state.keyStates['q'] && !g_state.keyStates['e']) {
+    g_state.player.position.y += g_state.player.moveSpeed;
+  }
+  else if (g_state.keyStates['e'] && !g_state.keyStates['q']) {
+    g_state.player.position.y -= g_state.player.moveSpeed;
+  }
+
   glutPostRedisplay();
   glutTimerFunc(GAME_LOOP_UPDATE_RATE, gameLoop, 0);
 }
