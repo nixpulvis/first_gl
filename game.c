@@ -32,8 +32,15 @@ GameState g_state = {
   }
 };
 
+GLubyte *g_img;
+BITMAPINFO **g_info;
+
 // game.c is the main file, this contains int main
 int main(int argc, char **argv) {
+
+  g_info = malloc(sizeof(BITMAPINFO *));
+  g_img = LoadDIBitmap("crate.bmp", g_info);
+
   // Initialize glut
   glutInit(&argc, argv);
 
@@ -73,7 +80,6 @@ int main(int argc, char **argv) {
   // Enter the glut event processing loop
   glutMainLoop();
 
-  // return 0
   return 0;
 }
 
@@ -185,32 +191,35 @@ void display3D(void) {
     }
   }
 
-  // Draw starting location
-  for(int i = 0; i < 4; i++) {
-    for(int j = 0; j < 4; j++) {
-      if((i+j)%2) glColor3f(0.5f, 0.0f, 0.0f);
-      else glColor3f(0.0f, 0.0f, 0.0f);
-
-      glVertex3f(1.0f+(float)i/4, 0.001f, 1.0f+(float)j/4);
-      glVertex3f(1.0f+(float)i/4+.25, 0.001f, 1.0f+(float)j/4);
-      glVertex3f(1.0f+(float)i/4+.25, 0.001f, 1.0f+(float)j/4+.25);
-      glVertex3f(1.0f+(float)i/4, 0.001f, 1.0f+(float)j/4+.25);
-    }
-  }
-
-  // Draw ending location
-  for(int i = 0; i < 4; i++) {
-    for(int j = 0; j < 4; j++) {
-      if((i+j)%2) glColor3f(0.5f, 0.5f, 0.0f);
-      else glColor3f(0.0f, 0.0f, 0.0f);
-
-      glVertex3f(2*g_state.mazeHeight+(float)i/4-1, 0.001f, 2*g_state.mazeWidth+(float)j/4-1);
-      glVertex3f(2*g_state.mazeHeight+(float)i/4+.25-1, 0.001f, 2*g_state.mazeWidth+(float)j/4-1);
-      glVertex3f(2*g_state.mazeHeight+(float)i/4+.25-1, 0.001f, 2*g_state.mazeWidth+(float)j/4+.25-1);
-      glVertex3f(2*g_state.mazeHeight+(float)i/4-1, 0.001f, 2*g_state.mazeWidth+(float)j/4+.25-1);
-    }
-  }
   glEnd();
+
+  glEnable(GL_TEXTURE_2D);
+  glBegin(GL_QUADS);
+
+  glColor3f(1.0f, 1.0f, 1.0f);
+
+  glTexCoord2f(0.0f, 0.0f); 
+  glVertex3f(1.0f, 0.001f, 1.0f);
+  glTexCoord2f(1.0f, 0.0f);
+  glVertex3f(2.0f, 0.001f, 1.0f);
+  glTexCoord2f(1.0f, 1.0f);
+  glVertex3f(2.0f, 0.001f, 2.0f);
+  glTexCoord2f(0.0f, 1.0f);
+  glVertex3f(1.0f, 0.001f, 2.0f);
+
+  glTexCoord2f(0.0f, 0.0f); 
+  glVertex3f(2*g_state.mazeHeight-1, 0.001f, 2*g_state.mazeWidth-1);
+  glTexCoord2f(1.0f, 0.0f);
+  glVertex3f(2*g_state.mazeHeight, 0.001f, 2*g_state.mazeWidth-1);
+  glTexCoord2f(1.0f, 1.0f);
+  glVertex3f(2*g_state.mazeHeight, 0.001f, 2*g_state.mazeWidth);
+  glTexCoord2f(0.0f, 1.0f);
+  glVertex3f(2*g_state.mazeHeight-1, 0.001f, 2*g_state.mazeWidth);
+
+  glEnd();
+
+  glDisable(GL_TEXTURE_2D);
+
 }
 
 // Set up OpenGL for 2D overlay
@@ -253,7 +262,7 @@ void display2D(void) {
 
   // Number of triangles to generate the pseudo circle
   // Incease for more accuracy
-  int compassNumOfTriangles = 32;
+  int compassNumOfTriangles = 64;
 
   // Center of compass location on screen
   int compassCenterX = width-(compassRadius+compassOffset);
@@ -349,6 +358,18 @@ void init(void) {
 
   // Disply high quality
   glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST);
+
+  glBindTexture(GL_TEXTURE_2D, 0);
+  glPixelStorei(GL_UNPACK_ALIGNMENT, 0);
+
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+
+  glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
+
+  glTexImage2D (GL_TEXTURE_2D, 0, GL_RGB, (**g_info).bmiHeader.biWidth, (**g_info).bmiHeader.biHeight, 0, GL_RGB, GL_UNSIGNED_BYTE, g_img);
 
   // Set maze dimensions
   g_state.mazeHeight = 10;

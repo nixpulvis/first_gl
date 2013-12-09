@@ -15,6 +15,7 @@
 #include <stdio.h>
 #include <math.h>
 
+#include "bitmap.h"
 #include "geometry.h"
 #include "objects.h"
 #include "maze.h"
