@@ -18,6 +18,7 @@
 #include "bitmap.h"
 #include "geometry.h"
 #include "objects.h"
+#include "collision_object.h"
 #include "maze.h"
 
 // Constants
@@ -26,11 +27,10 @@
 
 // Player struct
 typedef struct {
-  Vector3Df position;
+  CollisionObject collision_object;
   EulerAngle look;
   float moveSpeed;
   float lookSensitivity;
-
 } Player;
 
 // GameState struct
@@ -38,9 +38,6 @@ typedef struct {
   Vector2Di mousePos;
   Player player;
   unsigned char keyStates[256];
-  Cell** maze;
-  int mazeHeight;
-  int mazeWidth;
 } GameState;
 
 // ImageStore struct
@@ -51,6 +48,21 @@ typedef struct {
   int crate;
   int concrete;
 } ImageStore;
+
+// MazeStore struct
+typedef struct {
+  int height;
+  int width;
+
+  int numBoxes;
+
+  CollisionObject *boxes;
+} MazeStore;
+
+typedef struct {
+  ImageStore image_store;
+  MazeStore maze_store;
+} GameStore;
 
 // Headers for functions
 void setup3D(void);

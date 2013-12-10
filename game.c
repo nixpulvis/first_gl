@@ -12,11 +12,20 @@ GameState g_state = {
   // Declare player
   .player = {
     // Delcare player position
-    .position = {
-      .x = 1.5f,
-      .y = 0.5f,
-      .z = 1.5f
+    .collision_object = {
+      .position = {
+        .x = 1.5f,
+        .y = 0.5f,
+        .z = 1.5f
+      },
+      .dimensions = {
+        .x = 0.25f,
+        .y = 0.25f,
+        .z = 0.25f
+      },
+      .dynamic = 1
     },
+
     // Declare player look (where player is looking)
     // Used to calculate where camera looks
     .look = {
@@ -32,7 +41,7 @@ GameState g_state = {
   }
 };
 
-ImageStore g_store;
+GameStore g_store;
 
 // game.c is the main file, this contains int main
 int main(int argc, char **argv) {
@@ -86,7 +95,7 @@ int loadBMP(char *filename) {
   BITMAPINFO **img_info = malloc(sizeof(BITMAPINFO *));
   img = LoadDIBitmap(filename, img_info);
 
-  glBindTexture(GL_TEXTURE_2D, g_store.current);
+  glBindTexture(GL_TEXTURE_2D, g_store.image_store.current);
   glPixelStorei(GL_UNPACK_ALIGNMENT, 0);
 
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
@@ -98,7 +107,7 @@ int loadBMP(char *filename) {
 
   glTexImage2D (GL_TEXTURE_2D, 0, GL_RGB, (**img_info).bmiHeader.biWidth, (**img_info).bmiHeader.biHeight, 0, GL_RGB, GL_UNSIGNED_BYTE, img);
 
-  return g_store.current++;
+  return g_store.image_store.current++;
 }
 
 // Set up OpenGL for 3D rendering
@@ -129,11 +138,20 @@ void setup3D(void) {
   // Set camera to player position
   // Set camera to look 1 unit in direction of players :look"
   // Set camera orientation to be +y
-  gluLookAt(g_state.player.position.x, g_state.player.position.y, g_state.player.position.z,
-    g_state.player.position.x+cos(g_state.player.look.yaw),
-    g_state.player.position.y-tan(g_state.player.look.pitch),
-    g_state.player.position.z+sin(g_state.player.look.yaw),
-    0.0f, 1.0f, 0.0f);  
+  float cameraX = g_state.player.collision_object.position.x + 
+                  g_state.player.collision_object.dimensions.x/2;
+  float cameraY = g_state.player.collision_object.position.y + 
+                  g_state.player.collision_object.dimensions.y;
+  float cameraZ = g_state.player.collision_object.position.z + 
+                  g_state.player.collision_object.dimensions.z/2;
+
+  float cameraLookX = cameraX+cos(g_state.player.look.yaw);
+  float cameraLookY = cameraY-tan(g_state.player.look.pitch);
+  float cameraLookZ = cameraZ+sin(g_state.player.look.yaw);
+
+  gluLookAt(cameraX, cameraY, cameraZ, 
+            cameraLookX, cameraLookY, cameraLookZ,
+            0.0f, 1.0f, 0.0f);  
 }
 
 // Display 3D game
@@ -144,13 +162,13 @@ void display3D(void) {
   // Draw floor
 
   glEnable(GL_TEXTURE_2D);
-  glBindTexture(GL_TEXTURE_2D, g_store.grass);
+  glBindTexture(GL_TEXTURE_2D, g_store.image_store.grass);
   glBegin(GL_QUADS);
 
   glColor3f(1.0f, 1.0f, 1.0f);
 
-  for(int i = 0; i < g_state.mazeHeight*2+1; i++) {
-    for(int j = 0; j < g_state.mazeWidth*2+1; j++) {
+  for (int i = 0; i < g_store.maze_store.height*2+1; i++) {
+    for (int j = 0; j < g_store.maze_store.width*2+1; j++) {
 
       glTexCoord2f(0.0f, 0.0f);
       glVertex3f((float)i, 0.0f, (float)j);
@@ -166,54 +184,56 @@ void display3D(void) {
   glEnd();
   glDisable(GL_TEXTURE_2D);
 
-  // Draw Room
+///////////////////////////////
   glEnable(GL_TEXTURE_2D);
-  glBindTexture(GL_TEXTURE_2D, g_store.concrete);
+  glBindTexture(GL_TEXTURE_2D, g_store.image_store.crate);
+
   glBegin(GL_QUADS);
-
   glColor3f(1.0f, 1.0f, 1.0f);
-
-  drawTexturedBox(
-    (Vector3Df){.x = 0, .y = -g_state.mazeWidth, .z = 0},
-    (Vector3Df){.x = g_state.mazeWidth*2+1, .y = g_state.mazeWidth*2, .z = g_state.mazeHeight*2+1});
-
-  glEnd();
-  glDisable(GL_TEXTURE_2D);
-
-  // Set dimension vector for maze walls, render maze
-  Vector3Df dimensions = {.x = 1, .y = 1, .z = 1};
-
-  glEnable(GL_TEXTURE_2D);
-  glBindTexture(GL_TEXTURE_2D, g_store.crate);
-  glBegin(GL_QUADS);
-
-  glColor3f(1.0f, 1.0f, 1.0f);
-  for(int i = 0; i < 2*g_state.mazeHeight+1; i++) {
-    for(int j = 0; j < 2*g_state.mazeWidth+1; j++) {
-      if(i == 0 || i == 2*g_state.mazeHeight ||
-         j == 0 || j == 2*g_state.mazeWidth ||
-         (i%2 == 0 && j%2 == 0)) {
-        drawTexturedBox(
-          (Vector3Df){.x = i, .y = 0, .z = j},
-          dimensions);
-      }
-      if(i%2 == 1 && j%2 == 1) {
-        if(g_state.maze[i/2][j/2].right == 0) {
-          drawTexturedBox(
-            (Vector3Df){.x = i, .y = 0, .z = j+1},
-            dimensions);
-        }
-        if(g_state.maze[i/2][j/2].bot == 0) {
-          drawTexturedBox(
-            (Vector3Df){.x = i+1, .y = 0, .z = j},
-            dimensions);
-        }
-      }
-    }
+  for (int i = 0; i < g_store.maze_store.numBoxes; i++) {
+    CollisionObject box = g_store.maze_store.boxes[i];
+    drawTexturedBox(box.position, box.dimensions);
   }
 
   glEnd();
   glDisable(GL_TEXTURE_2D);
+///////////////////////////////////
+
+
+  // // Set dimension vector for maze walls, render maze
+  // Vector3Df dimensions = {.x = 1, .y = 1, .z = 1};
+
+  // glEnable(GL_TEXTURE_2D);
+  // glBindTexture(GL_TEXTURE_2D, g_store.crate);
+  // glBegin(GL_QUADS);
+
+  // glColor3f(1.0f, 1.0f, 1.0f);
+  // for(int i = 0; i < 2*g_state.mazeHeight+1; i++) {
+  //   for(int j = 0; j < 2*g_state.mazeWidth+1; j++) {
+  //     if(i == 0 || i == 2*g_state.mazeHeight ||
+  //        j == 0 || j == 2*g_state.mazeWidth ||
+  //        (i%2 == 0 && j%2 == 0)) {
+  //       drawTexturedBox(
+  //         (Vector3Df){.x = i, .y = 0, .z = j},
+  //         dimensions);
+  //     }
+  //     if(i%2 == 1 && j%2 == 1) {
+  //       if(g_state.maze[i/2][j/2].right == 0) {
+  //         drawTexturedBox(
+  //           (Vector3Df){.x = i, .y = 0, .z = j+1},
+  //           dimensions);
+  //       }
+  //       if(g_state.maze[i/2][j/2].bot == 0) {
+  //         drawTexturedBox(
+  //           (Vector3Df){.x = i+1, .y = 0, .z = j},
+  //           dimensions);
+  //       }
+  //     }
+  //   }
+  // }
+
+  // glEnd();
+  // glDisable(GL_TEXTURE_2D);
 }
 
 // Set up OpenGL for 2D overlay
@@ -340,6 +360,54 @@ void display(void) {
   glutSwapBuffers();
 }
 
+CollisionObject createMazeBlock(float i, float j) {
+  return (CollisionObject) {
+    .dynamic = 0,
+    .position = (Vector3Df) {
+      .x = i, 
+      .y = 0, 
+      .z = j
+    },
+    .dimensions = (Vector3Df) {
+      .x = 1, 
+      .y = 1, 
+      .z = 1
+    }
+  };
+}
+
+void initMaze(int width, int height) {
+  // Randomly generate the maze
+  Cell** maze = generateMaze(height, width);
+
+  int maxBoxes = (2*width+1) * (2*height+1);
+  g_store.maze_store.boxes = malloc(maxBoxes * sizeof(CollisionObject));
+
+  int place = 0;
+  for (int i = 0; i < 2*height+1; i++) {
+    for (int j = 0; j < 2*width+1; j++) {
+      if (i == 0 || i == 2*height ||
+         j == 0 || j == 2*width  ||
+         (i%2 == 0 && j%2 == 0)) {
+        g_store.maze_store.boxes[place++] = createMazeBlock(i, j);
+      }
+      else if (i%2 == 1 && j%2 == 1) {
+        if (maze[i/2][j/2].right == 0) {
+          g_store.maze_store.boxes[place++] = createMazeBlock(i, j+1);
+        }
+        if (maze[i/2][j/2].bot == 0) {
+          g_store.maze_store.boxes[place++] = createMazeBlock(i+1, j);
+        }
+      }
+    }
+  }
+
+  g_store.maze_store.height = height;
+  g_store.maze_store.width = width;
+
+  g_store.maze_store.numBoxes = place;
+}
+
 // Initialize OpenGL and game information
 void init(void) {
   // Set background to black and clear depth
@@ -353,16 +421,11 @@ void init(void) {
   // Disply high quality
   glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST);
 
-  g_store.grass = loadBMP("grass.bmp");
-  g_store.crate = loadBMP("crate.bmp");
-  g_store.concrete = loadBMP("concrete.bmp");
+  g_store.image_store.grass = loadBMP("grass.bmp");
+  g_store.image_store.crate = loadBMP("crate.bmp");
+  g_store.image_store.concrete = loadBMP("concrete.bmp");
 
-  // Set maze dimensions
-  g_state.mazeHeight = 10;
-  g_state.mazeWidth = 10;
-
-  // Randomly generate the maze
-  g_state.maze = generateMaze(g_state.mazeHeight, g_state.mazeWidth);
+  initMaze(10, 10);
 }
 
 // Callback for change window size event from OpenGL
@@ -450,38 +513,40 @@ void mouseMove(int x, int y) {
 
 // Evaluates new game state based on current keys pressed
 void handleKeys(void) {
+  Player *player = &g_state.player;
+
   // If walking, move player along floor (x-z axis)
   if (g_state.keyStates['w'] && !g_state.keyStates['s']) {
-    g_state.player.position.x += g_state.player.moveSpeed*cos(g_state.player.look.yaw);
-    g_state.player.position.z += g_state.player.moveSpeed*sin(g_state.player.look.yaw);
+    player->collision_object.position.x += player->moveSpeed*cos(player->look.yaw);
+    player->collision_object.position.z += player->moveSpeed*sin(player->look.yaw);
   }
   else if (g_state.keyStates['s'] && !g_state.keyStates['w']) {
-    g_state.player.position.x -= g_state.player.moveSpeed*cos(g_state.player.look.yaw);
-    g_state.player.position.z -= g_state.player.moveSpeed*sin(g_state.player.look.yaw);
+    player->collision_object.position.x -= player->moveSpeed*cos(player->look.yaw);
+    player->collision_object.position.z -= player->moveSpeed*sin(player->look.yaw);
   }
 
   if (g_state.keyStates['a'] && !g_state.keyStates['d']) {
-    g_state.player.position.x -= g_state.player.moveSpeed*cos(g_state.player.look.yaw + M_PI_2);
-    g_state.player.position.z -= g_state.player.moveSpeed*sin(g_state.player.look.yaw + M_PI_2);
+    player->collision_object.position.x -= player->moveSpeed*cos(player->look.yaw + M_PI_2);
+    player->collision_object.position.z -= player->moveSpeed*sin(player->look.yaw + M_PI_2);
   }
   else if (g_state.keyStates['d'] && !g_state.keyStates['a']) {
-    g_state.player.position.x += g_state.player.moveSpeed*cos(g_state.player.look.yaw + M_PI_2);
-    g_state.player.position.z += g_state.player.moveSpeed*sin(g_state.player.look.yaw + M_PI_2);
+    player->collision_object.position.x += player->moveSpeed*cos(player->look.yaw + M_PI_2);
+    player->collision_object.position.z += player->moveSpeed*sin(player->look.yaw + M_PI_2);
   }
 
   // Move player vertically (along y)
   if (g_state.keyStates['q'] && !g_state.keyStates['e']) {
-    g_state.player.position.y += g_state.player.moveSpeed;
+    player->collision_object.position.y += player->moveSpeed;
   }
   else if (g_state.keyStates['e'] && !g_state.keyStates['q']) {
-    g_state.player.position.y -= g_state.player.moveSpeed;
+    player->collision_object.position.y -= player->moveSpeed;
   }
 
   // If player pressing spacebar, increase speed
   if (g_state.keyStates[' ']) {
-    g_state.player.moveSpeed = DEFAULT_WALK_SPEED * 2;
+    player->moveSpeed = DEFAULT_WALK_SPEED * 2;
   } else {
-    g_state.player.moveSpeed = DEFAULT_WALK_SPEED;
+    player->moveSpeed = DEFAULT_WALK_SPEED;
   }
 }
 
