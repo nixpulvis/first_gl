@@ -32,6 +32,10 @@
 // Bottom -> Top -> Left -> Right -> Front -> Back
 void drawBox(Vector3Df position, Vector3Df dimensions, Vector3Df *colors);
 
+// drawTexturedBox only requires position and dimensions.
+// Assumes you are using GL_TEXTURES_2D
+void drawTexturedBox(Vector3Df position, Vector3Df dimensions);
+
 // drawPyramid accepts 5 color vectors that respectively apply to:
 // Bottom -> Left -> Right -> Front -> Back
 void drawPyramid(Vector3Df position, Vector3Df dimensions, Vector3Df *colors);

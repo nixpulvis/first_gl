@@ -45,6 +45,69 @@ void drawBox(Vector3Df position, Vector3Df dimensions, Vector3Df *colors) {
   glVertex3f(position.x+dimensions.x, position.y, position.z+dimensions.z);
 }
 
+// Render a 3D box (6 faces) at given position, dimensions and colors
+void drawTexturedBox(Vector3Df position, Vector3Df dimensions) {
+  // Bot
+  glTexCoord2f(0.0f, 0.0f);
+  glVertex3f(position.x, position.y, position.z);
+  glTexCoord2f(1.0f, 0.0f);
+  glVertex3f(position.x+dimensions.x, position.y, position.z);
+  glTexCoord2f(1.0f, 1.0f);
+  glVertex3f(position.x+dimensions.x, position.y, position.z+dimensions.z);
+  glTexCoord2f(0.0f, 1.0f);
+  glVertex3f(position.x, position.y, position.z+dimensions.z);
+
+  // Top
+  glTexCoord2f(0.0f, 0.0f);
+  glVertex3f(position.x, position.y+dimensions.y, position.z);
+  glTexCoord2f(1.0f, 0.0f);
+  glVertex3f(position.x+dimensions.x, position.y+dimensions.y, position.z);
+  glTexCoord2f(1.0f, 1.0f);
+  glVertex3f(position.x+dimensions.x, position.y+dimensions.y, position.z+dimensions.z);
+  glTexCoord2f(0.0f, 1.0f);
+  glVertex3f(position.x, position.y+dimensions.y, position.z+dimensions.z);
+
+  // Left
+  glTexCoord2f(0.0f, 0.0f);
+  glVertex3f(position.x, position.y, position.z);
+  glTexCoord2f(1.0f, 0.0f);
+  glVertex3f(position.x+dimensions.x, position.y, position.z);
+  glTexCoord2f(1.0f, 1.0f);
+  glVertex3f(position.x+dimensions.x, position.y+dimensions.y, position.z);
+  glTexCoord2f(0.0f, 1.0f);
+  glVertex3f(position.x, position.y+dimensions.y, position.z);
+
+  // Right
+  glTexCoord2f(0.0f, 0.0f);
+  glVertex3f(position.x, position.y, position.z+dimensions.z);
+  glTexCoord2f(1.0f, 0.0f);
+  glVertex3f(position.x+dimensions.x, position.y, position.z+dimensions.z);
+  glTexCoord2f(1.0f, 1.0f);
+  glVertex3f(position.x+dimensions.x, position.y+dimensions.y, position.z+dimensions.z);
+  glTexCoord2f(0.0f, 1.0f);
+  glVertex3f(position.x, position.y+dimensions.y, position.z+dimensions.z);
+
+  // Front
+  glTexCoord2f(0.0f, 0.0f);
+  glVertex3f(position.x, position.y, position.z);
+  glTexCoord2f(1.0f, 0.0f);
+  glVertex3f(position.x, position.y, position.z+dimensions.z);
+  glTexCoord2f(1.0f, 1.0f);
+  glVertex3f(position.x, position.y+dimensions.y, position.z+dimensions.z);
+  glTexCoord2f(0.0f, 1.0f);
+  glVertex3f(position.x, position.y+dimensions.y, position.z);
+
+  // Back
+  glTexCoord2f(0.0f, 0.0f);
+  glVertex3f(position.x+dimensions.x, position.y, position.z);
+  glTexCoord2f(1.0f, 0.0f);
+  glVertex3f(position.x+dimensions.x, position.y, position.z+dimensions.z);
+  glTexCoord2f(1.0f, 1.0f);
+  glVertex3f(position.x+dimensions.x, position.y+dimensions.y, position.z+dimensions.z);
+  glTexCoord2f(0.0f, 1.0f);
+  glVertex3f(position.x+dimensions.x, position.y+dimensions.y, position.z);
+}
+
 // Render a 3D pyramid at given position, dimensions and colors
 void drawPyramid(Vector3Df position, Vector3Df dimensions, Vector3Df *colors) {
   // nope

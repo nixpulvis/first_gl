@@ -43,11 +43,22 @@ typedef struct {
   int mazeWidth;
 } GameState;
 
+// ImageStore struct
+typedef struct {
+  int current;
+
+  int grass;
+  int crate;
+  int concrete;
+} ImageStore;
+
 // Headers for functions
 void setup3D(void);
 void display3D(void);
 void setup2D(void);
 void display2D(void);
+
+int loadBMP(char* filename);
 
 void display(void);
 void init(void);

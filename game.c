@@ -14,7 +14,7 @@ GameState g_state = {
     // Delcare player position
     .position = {
       .x = 1.5f,
-      .y = 1.0f,
+      .y = 0.5f,
       .z = 1.5f
     },
     // Declare player look (where player is looking)
@@ -32,14 +32,10 @@ GameState g_state = {
   }
 };
 
-GLubyte *g_img;
-BITMAPINFO **g_info;
+ImageStore g_store;
 
 // game.c is the main file, this contains int main
 int main(int argc, char **argv) {
-
-  g_info = malloc(sizeof(BITMAPINFO *));
-  g_img = LoadDIBitmap("crate.bmp", g_info);
 
   // Initialize glut
   glutInit(&argc, argv);
@@ -83,6 +79,28 @@ int main(int argc, char **argv) {
   return 0;
 }
 
+int loadBMP(char *filename) {
+  
+  GLubyte *img;
+
+  BITMAPINFO **img_info = malloc(sizeof(BITMAPINFO *));
+  img = LoadDIBitmap(filename, img_info);
+
+  glBindTexture(GL_TEXTURE_2D, g_store.current);
+  glPixelStorei(GL_UNPACK_ALIGNMENT, 0);
+
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+
+  glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
+
+  glTexImage2D (GL_TEXTURE_2D, 0, GL_RGB, (**img_info).bmiHeader.biWidth, (**img_info).bmiHeader.biHeight, 0, GL_RGB, GL_UNSIGNED_BYTE, img);
+
+  return g_store.current++;
+}
+
 // Set up OpenGL for 3D rendering
 void setup3D(void) {
   // Set matrix mode to projection and load identity
@@ -124,102 +142,78 @@ void display3D(void) {
   setup3D();
 
   // Draw floor
-  glBegin(GL_QUADS);  
+
+  glEnable(GL_TEXTURE_2D);
+  glBindTexture(GL_TEXTURE_2D, g_store.grass);
+  glBegin(GL_QUADS);
+
+  glColor3f(1.0f, 1.0f, 1.0f);
+
   for(int i = 0; i < g_state.mazeHeight*2+1; i++) {
     for(int j = 0; j < g_state.mazeWidth*2+1; j++) {
-      if((i+j)%2) glColor3f(0.5f, 0.4f, 0.4f);
-      else glColor3f(0.2f, 0.2f, 0.3f);
 
+      glTexCoord2f(0.0f, 0.0f);
       glVertex3f((float)i, 0.0f, (float)j);
+      glTexCoord2f(1.0f, 0.0f);
       glVertex3f((float)i+1, 0.0f, (float)j);
+      glTexCoord2f(1.0f, 1.0f);
       glVertex3f((float)i+1, 0.0f, (float)j+1);
+      glTexCoord2f(0.0f, 1.0f);
       glVertex3f((float)i, 0.0f, (float)j+1);
     }
   }
 
-  // Draw ceiling
-  for(int i = 0; i < g_state.mazeHeight*2+1; i++) {
-    for(int j = 0; j < g_state.mazeWidth*2+1; j++) {
-      if((i+j)%2) glColor3f(0.9f, 0.8f, 0.8f);
-      else glColor3f(0.6f, 0.6f, 0.7f);
+  glEnd();
+  glDisable(GL_TEXTURE_2D);
 
-      glVertex3f((float)i, 1.5f, (float)j);
-      glVertex3f((float)i+1, 1.5f, (float)j);
-      glVertex3f((float)i+1, 1.5f, (float)j+1);
-      glVertex3f((float)i, 1.5f, (float)j+1);
-    }
-  }
+  // Draw Room
+  glEnable(GL_TEXTURE_2D);
+  glBindTexture(GL_TEXTURE_2D, g_store.concrete);
+  glBegin(GL_QUADS);
 
-  // Set color vector for maze walls
-  Vector3Df colors[] = {
-    (Vector3Df){.x = 0.5f, .y = 0.0f, .z = 0.0f},
-    (Vector3Df){.x = 0.5f, .y = 0.5f, .z = 0.0f},
-    (Vector3Df){.x = 0.0f, .y = 0.5f, .z = 0.0f},
-    (Vector3Df){.x = 0.5f, .y = 0.0f, .z = 0.5f},
-    (Vector3Df){.x = 0.0f, .y = 0.0f, .z = 0.5f},
-    (Vector3Df){.x = 0.0f, .y = 0.5f, .z = 0.5f},
-  };
+  glColor3f(1.0f, 1.0f, 1.0f);
 
-  // Set dimension vector for maze walls
-  Vector3Df dimensions = {.x = 1, .y = 1.5, .z = 1};
+  drawTexturedBox(
+    (Vector3Df){.x = 0, .y = -g_state.mazeWidth, .z = 0},
+    (Vector3Df){.x = g_state.mazeWidth*2+1, .y = g_state.mazeWidth*2, .z = g_state.mazeHeight*2+1});
 
-  // Render maze
+  glEnd();
+  glDisable(GL_TEXTURE_2D);
+
+  // Set dimension vector for maze walls, render maze
+  Vector3Df dimensions = {.x = 1, .y = 1, .z = 1};
+
+  glEnable(GL_TEXTURE_2D);
+  glBindTexture(GL_TEXTURE_2D, g_store.crate);
+  glBegin(GL_QUADS);
+
+  glColor3f(1.0f, 1.0f, 1.0f);
   for(int i = 0; i < 2*g_state.mazeHeight+1; i++) {
     for(int j = 0; j < 2*g_state.mazeWidth+1; j++) {
       if(i == 0 || i == 2*g_state.mazeHeight ||
          j == 0 || j == 2*g_state.mazeWidth ||
          (i%2 == 0 && j%2 == 0)) {
-        drawBox(
+        drawTexturedBox(
           (Vector3Df){.x = i, .y = 0, .z = j},
-          dimensions,
-          colors);
+          dimensions);
       }
       if(i%2 == 1 && j%2 == 1) {
         if(g_state.maze[i/2][j/2].right == 0) {
-          drawBox(
+          drawTexturedBox(
             (Vector3Df){.x = i, .y = 0, .z = j+1},
-            dimensions,
-            colors);
+            dimensions);
         }
         if(g_state.maze[i/2][j/2].bot == 0) {
-          drawBox(
+          drawTexturedBox(
             (Vector3Df){.x = i+1, .y = 0, .z = j},
-            dimensions,
-            colors);
+            dimensions);
         }
       }
     }
   }
 
   glEnd();
-
-  glEnable(GL_TEXTURE_2D);
-  glBegin(GL_QUADS);
-
-  glColor3f(1.0f, 1.0f, 1.0f);
-
-  glTexCoord2f(0.0f, 0.0f); 
-  glVertex3f(1.0f, 0.001f, 1.0f);
-  glTexCoord2f(1.0f, 0.0f);
-  glVertex3f(2.0f, 0.001f, 1.0f);
-  glTexCoord2f(1.0f, 1.0f);
-  glVertex3f(2.0f, 0.001f, 2.0f);
-  glTexCoord2f(0.0f, 1.0f);
-  glVertex3f(1.0f, 0.001f, 2.0f);
-
-  glTexCoord2f(0.0f, 0.0f); 
-  glVertex3f(2*g_state.mazeHeight-1, 0.001f, 2*g_state.mazeWidth-1);
-  glTexCoord2f(1.0f, 0.0f);
-  glVertex3f(2*g_state.mazeHeight, 0.001f, 2*g_state.mazeWidth-1);
-  glTexCoord2f(1.0f, 1.0f);
-  glVertex3f(2*g_state.mazeHeight, 0.001f, 2*g_state.mazeWidth);
-  glTexCoord2f(0.0f, 1.0f);
-  glVertex3f(2*g_state.mazeHeight-1, 0.001f, 2*g_state.mazeWidth);
-
-  glEnd();
-
   glDisable(GL_TEXTURE_2D);
-
 }
 
 // Set up OpenGL for 2D overlay
@@ -359,17 +353,9 @@ void init(void) {
   // Disply high quality
   glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST);
 
-  glBindTexture(GL_TEXTURE_2D, 0);
-  glPixelStorei(GL_UNPACK_ALIGNMENT, 0);
-
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-
-  glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
-
-  glTexImage2D (GL_TEXTURE_2D, 0, GL_RGB, (**g_info).bmiHeader.biWidth, (**g_info).bmiHeader.biHeight, 0, GL_RGB, GL_UNSIGNED_BYTE, g_img);
+  g_store.grass = loadBMP("grass.bmp");
+  g_store.crate = loadBMP("crate.bmp");
+  g_store.concrete = loadBMP("concrete.bmp");
 
   // Set maze dimensions
   g_state.mazeHeight = 10;
