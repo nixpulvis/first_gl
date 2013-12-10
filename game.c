@@ -37,7 +37,7 @@ GameState g_state = {
     .moveSpeed = DEFAULT_WALK_SPEED,
 
     // Declare lookSensitivity of player
-    .lookSensitivity = 1.2f
+    .lookSensitivity = 0.5f
   }
 };
 
@@ -159,14 +159,11 @@ void display3D(void) {
   // Set up OpenGL for 3D rendering
   setup3D();
 
-  // Draw floor
-
   glEnable(GL_TEXTURE_2D);
+
   glBindTexture(GL_TEXTURE_2D, g_store.image_store.grass);
   glBegin(GL_QUADS);
-
   glColor3f(1.0f, 1.0f, 1.0f);
-
   for (int i = 0; i < g_store.maze_store.height*2+1; i++) {
     for (int j = 0; j < g_store.maze_store.width*2+1; j++) {
 
@@ -180,60 +177,18 @@ void display3D(void) {
       glVertex3f((float)i, 0.0f, (float)j+1);
     }
   }
-
   glEnd();
-  glDisable(GL_TEXTURE_2D);
 
-///////////////////////////////
-  glEnable(GL_TEXTURE_2D);
   glBindTexture(GL_TEXTURE_2D, g_store.image_store.crate);
-
   glBegin(GL_QUADS);
   glColor3f(1.0f, 1.0f, 1.0f);
   for (int i = 0; i < g_store.maze_store.numBoxes; i++) {
     CollisionObject box = g_store.maze_store.boxes[i];
     drawTexturedBox(box.position, box.dimensions);
   }
-
   glEnd();
+
   glDisable(GL_TEXTURE_2D);
-///////////////////////////////////
-
-
-  // // Set dimension vector for maze walls, render maze
-  // Vector3Df dimensions = {.x = 1, .y = 1, .z = 1};
-
-  // glEnable(GL_TEXTURE_2D);
-  // glBindTexture(GL_TEXTURE_2D, g_store.crate);
-  // glBegin(GL_QUADS);
-
-  // glColor3f(1.0f, 1.0f, 1.0f);
-  // for(int i = 0; i < 2*g_state.mazeHeight+1; i++) {
-  //   for(int j = 0; j < 2*g_state.mazeWidth+1; j++) {
-  //     if(i == 0 || i == 2*g_state.mazeHeight ||
-  //        j == 0 || j == 2*g_state.mazeWidth ||
-  //        (i%2 == 0 && j%2 == 0)) {
-  //       drawTexturedBox(
-  //         (Vector3Df){.x = i, .y = 0, .z = j},
-  //         dimensions);
-  //     }
-  //     if(i%2 == 1 && j%2 == 1) {
-  //       if(g_state.maze[i/2][j/2].right == 0) {
-  //         drawTexturedBox(
-  //           (Vector3Df){.x = i, .y = 0, .z = j+1},
-  //           dimensions);
-  //       }
-  //       if(g_state.maze[i/2][j/2].bot == 0) {
-  //         drawTexturedBox(
-  //           (Vector3Df){.x = i+1, .y = 0, .z = j},
-  //           dimensions);
-  //       }
-  //     }
-  //   }
-  // }
-
-  // glEnd();
-  // glDisable(GL_TEXTURE_2D);
 }
 
 // Set up OpenGL for 2D overlay
@@ -501,8 +456,8 @@ void mouseMove(int x, int y) {
   }
 
   // Change players yaw based on deltaX and pitch based on deltaY
-  g_state.player.look.yaw += (float)deltaX*g_state.player.lookSensitivity/500.0f;
-  g_state.player.look.pitch += (float)deltaY*g_state.player.lookSensitivity/500.0f;
+  g_state.player.look.yaw += (float) deltaX*g_state.player.lookSensitivity/500.0f;
+  g_state.player.look.pitch += (float) deltaY*g_state.player.lookSensitivity/500.0f;
 
   // If player looking to high or low, stop
   // This prevents looking to far up and seeing behind you with camera
@@ -550,10 +505,42 @@ void handleKeys(void) {
   }
 }
 
+void handleCollisions(void) {
+  CollisionObject *player = &g_state.player.collision_object;
+
+  for (int i = 0; i < g_store.maze_store.numBoxes; i++) {
+    CollisionObject box = g_store.maze_store.boxes[i];
+
+    Face collide = isColliding(*player, box);
+    if(collide) {
+      if(collide & 0x01) {
+        player->position.x = box.position.x+box.dimensions.x;
+      }
+      else if(collide & 0x02) {
+        player->position.x = box.position.x-player->dimensions.x;
+      }
+      else if(collide & 0x04) {
+        player->position.y = box.position.y+box.dimensions.y;
+      }
+      else if(collide & 0x08) {
+        player->position.y = box.position.y-player->dimensions.y;
+      }
+      else if(collide & 0x10) {
+        player->position.z = box.position.z+box.dimensions.z;
+      }
+      else if(collide & 0x20) {
+        player->position.z = box.position.z-player->dimensions.z;
+      }
+    }
+  }
+}
+
 // Main game loop
 void gameLoop(int value) {
   // Handle keys and move player
   handleKeys();
+
+  handleCollisions();
 
   // Redraw window
   glutPostRedisplay();

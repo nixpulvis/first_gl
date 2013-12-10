@@ -1,6 +1,11 @@
 #ifndef GEOMETRY_H
 #define GEOMETRY_H 
 
+// A direction is a char where
+// 0      0      0     0    0      0   0    0
+// UNUSED UNUSED FRONT BACK BOTTOM TOP LEFT RIGHT
+typedef unsigned char Face;
+
 // EulerAngle struct
 typedef struct {
   float pitch;

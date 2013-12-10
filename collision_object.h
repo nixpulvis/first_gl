@@ -10,7 +10,6 @@ typedef struct {
 	int dynamic;
 } CollisionObject;
 
-int isColliding(CollisionObject a, CollisionObject b);
-
+Face isColliding(CollisionObject a, CollisionObject b);
 
 #endif

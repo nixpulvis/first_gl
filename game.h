@@ -79,6 +79,7 @@ void keyPressed(unsigned char key, int x, int y);
 void keyUp(unsigned char key, int x, int y);
 void mouseMove(int x, int y);
 void handleKeys(void); 
+void handleCollisions(void);
 void gameLoop(int value);
 
 #endif
