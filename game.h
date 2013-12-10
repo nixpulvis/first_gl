@@ -23,11 +23,14 @@
 
 // Constants
 #define GAME_LOOP_UPDATE_RATE 10
-#define DEFAULT_WALK_SPEED 0.02f
+#define DEFAULT_WALK_SPEED 0.04f
+#define GRAVITY -0.003;
 
 // Player struct
 typedef struct {
   CollisionObject collision_object;
+  float dy;
+  int inAir;
   EulerAngle look;
   float moveSpeed;
   float lookSensitivity;
@@ -79,6 +82,7 @@ void keyPressed(unsigned char key, int x, int y);
 void keyUp(unsigned char key, int x, int y);
 void mouseMove(int x, int y);
 void handleKeys(void); 
+void handlePhysics(void);
 void handleCollisions(void);
 void gameLoop(int value);
 

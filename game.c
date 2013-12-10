@@ -20,12 +20,13 @@ GameState g_state = {
       },
       .dimensions = {
         .x = 0.25f,
-        .y = 0.25f,
+        .y = 0.5f,
         .z = 0.25f
       },
       .dynamic = 1
     },
-
+    .dy = 0.0f,
+    .inAir = 1,
     // Declare player look (where player is looking)
     // Used to calculate where camera looks
     .look = {
@@ -498,10 +499,15 @@ void handleKeys(void) {
   }
 
   // If player pressing spacebar, increase speed
-  if (g_state.keyStates[' ']) {
-    player->moveSpeed = DEFAULT_WALK_SPEED * 2;
-  } else {
-    player->moveSpeed = DEFAULT_WALK_SPEED;
+  // if (g_state.keyStates[' ']) {
+  //   player->moveSpeed = DEFAULT_WALK_SPEED * 2;
+  // } else {
+  //   player->moveSpeed = DEFAULT_WALK_SPEED;
+  // }
+
+  if (g_state.keyStates[' '] && !(player->inAir)) {
+    player->dy = 0.09f;
+    player->inAir = 1;
   }
 }
 
@@ -521,6 +527,11 @@ void handleCollisions(void) {
       }
       else if(collide & 0x04) {
         player->position.y = box.position.y+box.dimensions.y;
+        
+        if(g_state.player.dy < 0) {
+          g_state.player.dy = 0.0f;
+          g_state.player.inAir = 0;
+        }
       }
       else if(collide & 0x08) {
         player->position.y = box.position.y-player->dimensions.y;
@@ -535,12 +546,28 @@ void handleCollisions(void) {
   }
 }
 
+void handlePhysics(void) {
+  g_state.player.inAir = 1;
+
+  g_state.player.dy += GRAVITY;
+  g_state.player.collision_object.position.y += g_state.player.dy;
+
+  if (g_state.player.collision_object.position.y < 0.0f) {
+    g_state.player.collision_object.position.y = 0.0f;
+    g_state.player.dy = 0.0f;
+    g_state.player.inAir = 0;
+  }
+
+  handleCollisions();
+}
+
 // Main game loop
 void gameLoop(int value) {
   // Handle keys and move player
   handleKeys();
 
-  handleCollisions();
+  // Handle physics of game
+  handlePhysics();
 
   // Redraw window
   glutPostRedisplay();
