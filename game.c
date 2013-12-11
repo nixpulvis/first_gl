@@ -565,7 +565,7 @@ void handlePhysics(float dt) {
 void gameLoop(int value) {
   clock_t timer = clock();
   int delta = timer - value;
-  float dt = (float)delta/1000.0f;
+  float dt = (float)delta/(float)CLOCKS_PER_SEC;
 
   // Handle keys and move player
   handleKeys(dt);
