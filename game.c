@@ -490,21 +490,6 @@ void handleKeys(float dt) {
     player->collision_object.position.z += player->moveSpeed*dt*sin(player->look.yaw + M_PI_2);
   }
 
-  // Move player vertically (along y)
-  if (g_state.keyStates['q'] && !g_state.keyStates['e']) {
-    player->collision_object.position.y += player->moveSpeed;
-  }
-  else if (g_state.keyStates['e'] && !g_state.keyStates['q']) {
-    player->collision_object.position.y -= player->moveSpeed;
-  }
-
-  // If player pressing spacebar, increase speed
-  // if (g_state.keyStates[' ']) {
-  //   player->moveSpeed = DEFAULT_WALK_SPEED * 2;
-  // } else {
-  //   player->moveSpeed = DEFAULT_WALK_SPEED;
-  // }
-
   if (g_state.keyStates[' '] && !(player->inAir)) {
     player->dy = 5.0f;
     player->inAir = 1;
