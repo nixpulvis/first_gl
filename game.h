@@ -14,6 +14,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <math.h>
+#include <time.h>
 
 #include "bitmap.h"
 #include "geometry.h"
@@ -23,8 +24,8 @@
 
 // Constants
 #define GAME_LOOP_UPDATE_RATE 10
-#define DEFAULT_WALK_SPEED 0.04f
-#define GRAVITY -0.003;
+#define DEFAULT_WALK_SPEED 3.0f
+#define GRAVITY -10.0f;
 
 // Player struct
 typedef struct {
@@ -81,8 +82,8 @@ void reshape(int width, int height);
 void keyPressed(unsigned char key, int x, int y);
 void keyUp(unsigned char key, int x, int y);
 void mouseMove(int x, int y);
-void handleKeys(void); 
-void handlePhysics(void);
+void handleKeys(float dt); 
+void handlePhysics(float dt);
 void handleCollisions(void);
 void gameLoop(int value);
 

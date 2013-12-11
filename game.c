@@ -38,7 +38,7 @@ GameState g_state = {
     .moveSpeed = DEFAULT_WALK_SPEED,
 
     // Declare lookSensitivity of player
-    .lookSensitivity = 0.5f
+    .lookSensitivity = 0.75f
   }
 };
 
@@ -468,26 +468,26 @@ void mouseMove(int x, int y) {
 }
 
 // Evaluates new game state based on current keys pressed
-void handleKeys(void) {
+void handleKeys(float dt) {
   Player *player = &g_state.player;
 
   // If walking, move player along floor (x-z axis)
   if (g_state.keyStates['w'] && !g_state.keyStates['s']) {
-    player->collision_object.position.x += player->moveSpeed*cos(player->look.yaw);
-    player->collision_object.position.z += player->moveSpeed*sin(player->look.yaw);
+    player->collision_object.position.x += player->moveSpeed*dt*cos(player->look.yaw);
+    player->collision_object.position.z += player->moveSpeed*dt*sin(player->look.yaw);
   }
   else if (g_state.keyStates['s'] && !g_state.keyStates['w']) {
-    player->collision_object.position.x -= player->moveSpeed*cos(player->look.yaw);
-    player->collision_object.position.z -= player->moveSpeed*sin(player->look.yaw);
+    player->collision_object.position.x -= player->moveSpeed*dt*cos(player->look.yaw);
+    player->collision_object.position.z -= player->moveSpeed*dt*sin(player->look.yaw);
   }
 
   if (g_state.keyStates['a'] && !g_state.keyStates['d']) {
-    player->collision_object.position.x -= player->moveSpeed*cos(player->look.yaw + M_PI_2);
-    player->collision_object.position.z -= player->moveSpeed*sin(player->look.yaw + M_PI_2);
+    player->collision_object.position.x -= player->moveSpeed*dt*cos(player->look.yaw + M_PI_2);
+    player->collision_object.position.z -= player->moveSpeed*dt*sin(player->look.yaw + M_PI_2);
   }
   else if (g_state.keyStates['d'] && !g_state.keyStates['a']) {
-    player->collision_object.position.x += player->moveSpeed*cos(player->look.yaw + M_PI_2);
-    player->collision_object.position.z += player->moveSpeed*sin(player->look.yaw + M_PI_2);
+    player->collision_object.position.x += player->moveSpeed*dt*cos(player->look.yaw + M_PI_2);
+    player->collision_object.position.z += player->moveSpeed*dt*sin(player->look.yaw + M_PI_2);
   }
 
   // Move player vertically (along y)
@@ -506,7 +506,7 @@ void handleKeys(void) {
   // }
 
   if (g_state.keyStates[' '] && !(player->inAir)) {
-    player->dy = 0.09f;
+    player->dy = 5.0f;
     player->inAir = 1;
   }
 }
@@ -546,11 +546,11 @@ void handleCollisions(void) {
   }
 }
 
-void handlePhysics(void) {
+void handlePhysics(float dt) {
   g_state.player.inAir = 1;
 
-  g_state.player.dy += GRAVITY;
-  g_state.player.collision_object.position.y += g_state.player.dy;
+  g_state.player.dy += dt*(float)GRAVITY;
+  g_state.player.collision_object.position.y += dt*g_state.player.dy;
 
   if (g_state.player.collision_object.position.y < 0.0f) {
     g_state.player.collision_object.position.y = 0.0f;
@@ -563,15 +563,19 @@ void handlePhysics(void) {
 
 // Main game loop
 void gameLoop(int value) {
+  clock_t timer = clock();
+  int delta = timer - value;
+  float dt = (float)delta/1000.0f;
+
   // Handle keys and move player
-  handleKeys();
+  handleKeys(dt);
 
   // Handle physics of game
-  handlePhysics();
+  handlePhysics(dt);
 
   // Redraw window
   glutPostRedisplay();
 
   // Call gameLoop again after given time in ms
-  glutTimerFunc(GAME_LOOP_UPDATE_RATE, gameLoop, 0);
+  glutTimerFunc(GAME_LOOP_UPDATE_RATE, gameLoop, timer);
 }
