@@ -17,6 +17,9 @@ NAME = game
 
 .PHONY: clean run
 
+# Mark all .o files as intermediate.
+.INTERMEDIATE: $(SRCS:.c=.o)
+
 all: $(NAME)
 
 $(NAME): $(OBJS)
@@ -26,7 +29,7 @@ $(NAME): $(OBJS)
 	$(CC) $(CFLAGS) -c $< -o $@
 
 clean:
-	rm -rf $(NAME) *.dSYM
+	rm -rf $(NAME) *.dSYM *.o
 
 run: all
 	./game
