@@ -1,10 +1,14 @@
 CC = gcc
 CFLAGS = -Wall -Wno-deprecated -pedantic -std=c99 -g -O
 
-ifneq (,$(findstring /c/, $(PATH)))
-	LDFLAGS = -lopengl32 -lglut32 -lglu32
-else
+UNAME := $(shell uname)
+
+ifeq ($(UNAME), Darwin)
 	LDFLAGS = -framework OpenGL -framework GLUT
+else ifeq ($(UNAME), Linux)
+	LDFLAGS = -lGL -lGLU -lglut
+else
+	LDFLAGS = -lopengl32 -lglut32 -lglu32
 endif
 
 LDFLAGS += -lm
